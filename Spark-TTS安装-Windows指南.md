@@ -13,8 +13,6 @@
 
 * 确保在安装过程中检查**“添加conda到路径”**。
 
-  ![2820c568-6536-4785-8772-84ef4f02ae9b.png](https://cdn.jsdelivr.net/gh//note-gen-image-sync@main/2820c568-6536-4785-8772-84ef4f02ae9b.png)
-
 ### **下载Spark-TTS**
 
 您有**两个选项**来获取文件：
