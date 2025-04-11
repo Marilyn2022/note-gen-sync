@@ -2,7 +2,7 @@
 
 ## 📱 前言
 
-还在为各种AI模型的高昂API费用发愁吗？还在为找不到好用又免费的AI开发工具而烦恼吗？今天我要分享一个重磅消息 —— 通过Cherry Studio，你可以**完全免费**使用GitHub推出的强大模型API！这简直是开发者和AI爱好者的福音，让我们一起来看看这个不可错过的机会吧！
+还在为各种AI模型的高昂API费用发愁吗？还在为找不到好用又免费的AI开发工具而烦恼吗？今天我要分享一个重磅消息——通过Cherry Studio，你可以完全免费使用GitHub推出的强大模型API！这简直是开发者和AI爱好者的福音，让我们一起来看看这个不可错过的机会吧！
 
 ![image.png](https://cdn.jsdelivr.net/gh/Marilyn2022/note-gen-image-sync@main/2025-04/9301f9c3-7a32-4a48-9e8e-050f02e02ee5.png)
 
