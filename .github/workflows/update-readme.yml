@@ -5,6 +5,8 @@ on:
     branches:
       - main  # 在推送到 main 分支时触发运行
   workflow_dispatch:  # 手动触发工作流的选项
+  schedule:
+    - cron: '0 * * * *'  # 每小时的第 0 分钟触发运行
 
 jobs:
   run-script:
