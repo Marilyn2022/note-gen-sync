@@ -9,6 +9,8 @@ on:
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 授予对仓库内容的写权限
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3  # 拉取代码仓库
