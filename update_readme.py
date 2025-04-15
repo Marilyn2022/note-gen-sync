@@ -1,105 +1,130 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
+import shutil
 
-# 获取最新有插图文章的第一张图片
-def get_first_image_from_latest_article(notes):
-    """
-    从所有文章中查找最新有插图的文章，并返回其第一张图片的 URL。
-    """
-    for note in sorted(notes, key=lambda x: os.path.getmtime(x), reverse=True):
-        try:
-            with open(note, "r", encoding="utf-8") as f:
-                content = f.read()
-                # 查找图片链接格式 ![alt](url)
-                match = re.search(r"!\[.*?\]\((.*?)\)", content)
-                if match:
-                    return match.group(1)  # 返回第一张图片的 URL
-        except (FileNotFoundError, IOError) as e:
-            print(f"无法读取文件 {note}：{e}")
-    return None  # 如果没有找到，返回 None
 
-# 修改生成 README.md 的函数
-def generate_readme_content(note_structure, recent_notes, latest_image_url):
+def get_all_notes(directory="notes"):
     """
-    生成 README.md 文件的内容，包括最新文章、按年月分类的文章目录以及最新文章中的图片。
+    扫描指定目录下的所有 Markdown 文件，并按修改时间排序返回文件路径列表。
+    """
+    if not os.path.exists(directory):
+        raise FileNotFoundError(f"指定的目录不存在: {directory}")
+
+    notes = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".md"):
+                notes.append(os.path.join(root, file))
+    notes.sort(key=os.path.getmtime, reverse=True)  # 按修改时间从新到旧排序
+    return notes
+
+
+def get_notes_by_month(notes):
+    """
+    按年月分类笔记，例如 202504。
+    返回一个字典，键为年月（如 202504），值为对应笔记路径列表。
+    """
+    notes_by_month = {}
+    for note in notes:
+        mod_time = datetime.fromtimestamp(os.path.getmtime(note))
+        year_month = mod_time.strftime("%Y%m")
+        if year_month not in notes_by_month:
+            notes_by_month[year_month] = []
+        notes_by_month[year_month].append(note)
+    return notes_by_month
+
+
+def get_recent_notes(notes, days=7):
+    """
+    获取最近 N 天内的笔记。
+    """
+    recent_notes = []
+    now = datetime.now()
+    cutoff_date = now - timedelta(days=days)
+    for note in notes:
+        mod_time = datetime.fromtimestamp(os.path.getmtime(note))
+        if mod_time >= cutoff_date:
+            recent_notes.append(note)
+    return recent_notes
+
+
+def extract_first_image(note_path):
+    """
+    从笔记中提取第一张图片的路径（如果有）。
+    图片格式支持：![](image_url) 或 ![alt_text](image_url)
+    """
+    with open(note_path, "r", encoding="utf-8") as file:
+        content = file.read()
+    # 查找图片链接的正则表达式
+    match = re.search(r"!\[.*?\]\((.*?)\)", content)
+    if match:
+        return match.group(1)  # 返回图片路径
+    return None
+
+
+def generate_readme(notes_by_month, recent_notes, recent_image):
+    """
+    根据分类、最近笔记和最近一篇有插图的笔记生成 README 内容。
     """
     readme_content = "# 笔记目录\n\n"
-    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    readme_content += f"**最后更新：{current_date}**\n\n"
-    
-    # 显示最新有插图文章的第一张图片
-    if latest_image_url:
-        readme_content += f"![最新文章图片]({latest_image_url})\n\n"
 
-    # 最新文章
-    if recent_notes:
-        readme_content += "## 最新文章\n\n"
-        for note in recent_notes:
-            relative_path = os.path.relpath(note, ".")
-            file_name = os.path.basename(note)
-            readme_content += f"- [{file_name}]({relative_path})\n"
-        readme_content += "\n"
+    # 添加最近更新时间
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    readme_content += f"**最近更新时间：{now}**\n\n"
 
-    # 按年月分类
-    for year_month, notes in sorted(note_structure.items(), reverse=True):
-        readme_content += f"## {year_month}\n\n"
-        for note in sorted(notes):
-            relative_path = os.path.relpath(note, ".")
-            file_name = os.path.basename(note)
-            readme_content += f"- [{file_name}]({relative_path})\n"
+    # 添加最近一篇有插图笔记的第一张插图
+    if recent_image:
+        readme_content += f"![最近插图]({recent_image})\n\n"
+
+    # 最近 7 天的笔记
+    readme_content += "## 最近 7 天的笔记\n\n"
+    for note in recent_notes:
+        note_name = os.path.basename(note)
+        readme_content += f"- [{note_name}]({note})\n"
+    readme_content += "\n"
+
+    # 按年月分类笔记
+    readme_content += "## 按年月分类的笔记\n\n"
+    for year_month, notes in notes_by_month.items():
+        readme_content += f"### {year_month}\n\n"
+        for note in notes:
+            note_name = os.path.basename(note)
+            readme_content += f"- [{note_name}]({note})\n"
         readme_content += "\n"
 
     return readme_content
 
-# 更新 README 文件
-def update_readme(project_directory, content):
+
+def update_readme():
     """
-    将内容写入 README.md 文件。
+    主函数，扫描笔记目录并更新 README.md 文件。
     """
-    readme_path = os.path.join(project_directory, "README.md")
-    try:
-        with open(readme_path, "w", encoding="utf-8") as f:
-            f.write(content)
-        print(f"README.md 已成功更新！路径：{readme_path}")
-    except (FileNotFoundError, IOError) as e:
-        print(f"写入 README.md 文件失败：{e}")
+    notes_dir = "notes"  # 笔记目录
+    notes = get_all_notes(notes_dir)  # 获取所有笔记
+    notes_by_month = get_notes_by_month(notes)  # 按年月分类笔记
+    recent_notes = get_recent_notes(notes)  # 获取最近 7 天的笔记
 
-# 修改主程序
-def main():
-    """
-    主程序入口，扫描文章目录，生成 README.md 文件。
-    """
-    project_directory = "."  # 当前目录
-    print("正在扫描文章...")
+    # 提取最近一篇有插图笔记的第一张插图
+    recent_image = None
+    for note in notes:
+        recent_image = extract_first_image(note)
+        if recent_image:
+            break
 
-    # 获取所有文章
-    try:
-        notes = get_all_notes(project_directory)
-        print(f"发现 {len(notes)} 篇文章。")
-    except Exception as e:
-        print(f"获取文章失败：{e}")
-        return
+    # 生成 README 内容
+    readme_content = generate_readme(notes_by_month, recent_notes, recent_image)
 
-    # 按年月分类
-    note_structure = organize_notes_by_year_month(notes)
+    # 写入 README.md
+    readme_path = "README.md"
+    with open(readme_path, "w", encoding="utf-8") as readme_file:
+        readme_file.write(readme_content)
+    print(f"README.md 更新完成！")
 
-    # 获取最近一周的更新
-    recent_notes = get_recent_notes(notes)
-    print(f"最近一周有 {len(recent_notes)} 篇更新。")
-
-    # 获取最新有插图文章的第一张图片
-    latest_image_url = get_first_image_from_latest_article(notes)
-    if latest_image_url:
-        print(f"找到最新文章的图片：{latest_image_url}")
-    else:
-        print("未找到含图片的文章。")
-
-    # 生成 README.md 内容
-    readme_content = generate_readme_content(note_structure, recent_notes, latest_image_url)
-
-    # 更新 README.md 文件
-    update_readme(project_directory, readme_content)
 
 if __name__ == "__main__":
-    main()
+    print("正在扫描文章...")
+    try:
+        update_readme()
+    except Exception as e:
+        print(f"更新失败：{e}")
