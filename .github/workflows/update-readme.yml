@@ -9,29 +9,33 @@ on:
     - cron: '0 * * * *'  # 每小时的第 0 分钟触发运行
 
 jobs:
-  run-script:
+  update-readme:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # 授予对仓库内容的写权限
     steps:
+      # Step 1: 检出代码
       - name: Checkout repository
-        uses: actions/checkout@v3  # 拉取代码仓库
+        uses: actions/checkout@v3
 
+      # Step 2: 设置 Python 环境
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.x  # 替换为所需的 Python 版本
 
+      # Step 3: 安装依赖
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # 如果有依赖项，可以在这里安装
-          # pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      # Step 4: 运行脚本
       - name: Run update_readme.py script
         run: |
-          python update_readme.py
+          if [ -f update_readme.py ]; then python update_readme.py; else echo "update_readme.py not found"; exit 1; fi
 
+      # Step 5: 提交并推送更改
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
