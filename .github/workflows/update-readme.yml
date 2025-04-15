@@ -29,8 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # 如果有 requirements.txt 文件，请解开以下注释
-          # pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       # Step 4: 运行 update_readme.py 脚本
       - name: Run update_readme.py script
