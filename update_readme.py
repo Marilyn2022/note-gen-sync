@@ -1,112 +1,109 @@
 import os
 import re
 from datetime import datetime, timedelta
+from collections import defaultdict
 
+# 项目目录
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+NOTES_DIR = os.path.join(BASE_DIR, "notes")  # 假设笔记存放在 notes 文件夹中
 
-def scan_notes(directory="notes"):
-    """
-    扫描指定目录下的所有 Markdown 文件，并按修改时间从新到旧排序。
-    """
-    if not os.path.exists(directory):
-        raise FileNotFoundError(f"指定的目录不存在: {directory}")
-
+def get_all_notes():
+    """获取所有 .md 文件路径"""
     notes = []
-    for root, _, files in os.walk(directory):
+    for root, _, files in os.walk(NOTES_DIR):
         for file in files:
             if file.endswith(".md"):
                 notes.append(os.path.join(root, file))
-    notes.sort(key=os.path.getmtime, reverse=True)
     return notes
 
+def get_note_metadata(note_path):
+    """获取笔记的元数据"""
+    with open(note_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    title = lines[0].strip() if lines else "无标题"
+    is_pinned = "置顶" in title
+    image_path = None
+    for line in lines:
+        match = re.search(r'!\[.*?\]\((.*?)\)', line)
+        if match:
+            image_path = match.group(1)
+            break
+    return {
+        "path": note_path,
+        "title": title,
+        "is_pinned": is_pinned,
+        "image": image_path,
+        "last_modified": datetime.fromtimestamp(os.path.getmtime(note_path))
+    }
 
-def categorize_notes_by_month(notes):
-    """
-    按年月分类笔记，返回字典，键为年月（如202504），值为对应笔记路径列表。
-    """
-    notes_by_month = {}
-    for note in notes:
-        mod_time = datetime.fromtimestamp(os.path.getmtime(note))
-        year_month = mod_time.strftime("%Y%m")
-        notes_by_month.setdefault(year_month, []).append(note)
-    return notes_by_month
+def generate_readme():
+    """生成 README 文件"""
+    notes = get_all_notes()
+    notes_metadata = [get_note_metadata(note) for note in notes]
 
-
-def get_recent_notes(notes, days=7):
-    """
-    获取最近 N 天内修改的笔记。
-    """
-    cutoff_date = datetime.now() - timedelta(days=days)
-    return [note for note in notes if datetime.fromtimestamp(os.path.getmtime(note)) >= cutoff_date]
-
-
-def find_first_image_in_notes(notes):
-    """
-    从笔记中查找第一张图片，返回图片路径（如果有）。
-    """
-    for note in notes:
-        with open(note, "r", encoding="utf-8") as file:
-            content = file.read()
-            match = re.search(r"!\[.*?\]\((.*?)\)", content)
-            if match:
-                return match.group(1)
-    return None
-
-
-def generate_readme_content(notes_by_month, recent_notes, recent_image):
-    """
-    根据笔记分类、最近笔记和最近插图生成 README 内容。
-    """
-    readme_content = "# 笔记目录\n\n"
+    # 目录
+    directory = "## 笔记目录\n"
+    for meta in notes_metadata:
+        relative_path = os.path.relpath(meta['path'], BASE_DIR)
+        directory += f"- [{meta['title']}]({relative_path})\n"
 
     # 最近更新时间
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    readme_content += f"**最近更新时间：{now}**\n\n"
-
-    # 最近的插图
-    if recent_image:
-        readme_content += f"![最近插图]({recent_image})\n\n"
+    latest_note = max(notes_metadata, key=lambda x: x['last_modified'])
+    last_update = f"## 最近更新时间\n- 最新更新: [{latest_note['title']}]({os.path.relpath(latest_note['path'], BASE_DIR)}) - {latest_note['last_modified']}\n"
 
     # 最近 7 天的笔记
-    readme_content += "## 最近 7 天的笔记\n\n"
-    for note in recent_notes:
-        note_name = os.path.basename(note)
-        readme_content += f"- [{note_name}]({note})\n"
-    readme_content += "\n"
+    recent_notes = [
+        meta for meta in notes_metadata
+        if meta['last_modified'] >= datetime.now() - timedelta(days=7)
+    ]
+    recent_notes_section = "## 最近 7 天的笔记\n"
+    for meta in recent_notes:
+        recent_notes_section += f"- [{meta['title']}]({os.path.relpath(meta['path'], BASE_DIR)})\n"
 
-    # 按年月分类的笔记
-    readme_content += "## 按年月分类的笔记\n\n"
-    for year_month, notes in notes_by_month.items():
-        readme_content += f"### {year_month}\n\n"
-        for note in notes:
-            note_name = os.path.basename(note)
-            readme_content += f"- [{note_name}]({note})\n"
-        readme_content += "\n"
+    # 按年月分类
+    notes_by_year_month = defaultdict(list)
+    for meta in notes_metadata:
+        year_month = meta['last_modified'].strftime("%Y-%m")
+        notes_by_year_month[year_month].append(meta)
+    year_month_section = "## 按年月分类笔记\n"
+    for year_month, metas in notes_by_year_month.items():
+        year_month_section += f"### {year_month}\n"
+        for meta in metas:
+            year_month_section += f"- [{meta['title']}]({os.path.relpath(meta['path'], BASE_DIR)})\n"
 
-    return readme_content
+    # 笔记关联内容（简单实现为同目录下的其他笔记）
+    related_notes_section = "## 笔记关联内容\n"
+    for meta in notes_metadata:
+        related_notes_section += f"### {meta['title']}\n"
+        related_notes_section += "关联笔记:\n"
+        related_notes = [
+            other_meta for other_meta in notes_metadata
+            if os.path.dirname(other_meta['path']) == os.path.dirname(meta['path'])
+            and other_meta['path'] != meta['path']
+        ]
+        for related in related_notes:
+            related_notes_section += f"- [{related['title']}]({os.path.relpath(related['path'], BASE_DIR)})\n"
+    
+    # 置顶笔记
+    pinned_notes = [meta for meta in notes_metadata if meta['is_pinned']]
+    pinned_section = "## 置顶笔记\n"
+    for meta in pinned_notes:
+        pinned_section += f"- [{meta['title']}]({os.path.relpath(meta['path'], BASE_DIR)})\n"
 
+    # 合并所有部分
+    readme_content = (
+        "# 笔记汇总\n\n" +
+        directory + "\n" +
+        last_update + "\n" +
+        pinned_section + "\n" +
+        recent_notes_section + "\n" +
+        year_month_section + "\n" +
+        related_notes_section
+    )
 
-def update_readme():
-    """
-    主函数，扫描笔记并生成 README 文件。
-    """
-    notes_dir = "notes"
-    notes = scan_notes(notes_dir)
-    notes_by_month = categorize_notes_by_month(notes)
-    recent_notes = get_recent_notes(notes)
-    recent_image = find_first_image_in_notes(notes)
-
-    # 生成 README 内容
-    readme_content = generate_readme_content(notes_by_month, recent_notes, recent_image)
-
-    # 写入 README.md
-    with open("README.md", "w", encoding="utf-8") as readme_file:
-        readme_file.write(readme_content)
-    print("README.md 更新完成！")
-
+    # 写入 README.md 文件
+    with open(os.path.join(BASE_DIR, "README.md"), 'w', encoding='utf-8') as f:
+        f.write(readme_content)
 
 if __name__ == "__main__":
-    print("正在扫描笔记...")
-    try:
-        update_readme()
-    except Exception as e:
-        print(f"更新失败：{e}")
+    generate_readme()
