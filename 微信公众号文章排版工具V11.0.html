@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信公众号文章排版工具V11.0</title>
+    <!-- 使用Tailwind CSS来快速构建工具界面 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 highlight.js 核心库和常用语言包 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/markdown.min.js"></script>
+    <style>
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        #editor { outline: none; border: 1px solid #d1d5db; padding: 1.5rem; border-radius: 0.5rem; min-height: 60vh; font-size: 15px; line-height: 1.6; color: #333; text-align: left; word-wrap: break-word; }
+        #editor h1 { font-size: 24px; font-weight: bold; color: #000; margin: 0 0 15px; }
+        #editor h2 { font-size: 20px; font-weight: bold; color: #000; margin: 0 0 12px; border: 0; padding: 0;}
+        #editor h3 { font-size: 18px; font-weight: bold; color: #000; margin: 0 0 10px; }
+        #editor p { margin: 0 0 10px; }
+        #editor blockquote { background-color: #fff9e6; border-left: 4px solid #ffaa00; padding: 15px; margin: 15px 0; border-radius: 5px; color: #555; }
+        #editor ul, #editor ol { margin: 10px 0; padding-left: 20px; }
+        #editor ul { list-style-type: disc; } #editor ol { list-style-type: decimal; }
+        #editor li { margin-bottom: 0.5em; }
+        #editor img { max-width: 100%; height: auto; display: block; margin: 16px auto; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #editor pre { background-color: #f6f8fa; border: 1px solid #e1e4e8; padding: 12px; border-radius: 6px; white-space: pre-wrap; }
+        #editor pre[data-theme="dark"] { background-color: #2d2d2d; border-color: #444; color: #f8f8f2; }
+        .toolbar-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.375rem; transition: background-color 0.2s; }
+        .toolbar-btn:hover { background-color: #e5e7eb; }
+        .toolbar-btn svg { width: 20px; height: 20px; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">微信公众号文章排版工具V11.0</h1>
+            <p class="text-gray-600 mt-2">可视化编辑，支持智能粘贴、内容自动保存与Markdown快捷输入</p>
+        </header>
+
+        <!-- 工具栏 -->
+        <div id="toolbar" class="bg-white p-2 rounded-lg shadow-md mb-4 flex flex-wrap items-center gap-1">
+            <select id="block-type" class="bg-gray-100 border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 h-9">
+                <option value="p">正文</option> <option value="h1">H1</option> <option value="h2">H2</option> <option value="h3">H3</option>
+            </select>
+            <button class="toolbar-btn" onclick="formatDoc('bold')" title="加粗">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>
+            </button>
+            <button class="toolbar-btn" onclick="formatDoc('italic')" title="斜体">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>
+            </button>
+            <button class="toolbar-btn" onclick="formatDoc('underline')" title="下划线">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path><line x1="4" y1="21" x2="20" y2="21"></line></svg>
+            </button>
+            <button class="toolbar-btn" onclick="formatDoc('strikeThrough')" title="删除线">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9a3 3 0 0 0-2.83 4"></path><path d="M14 12a4 4 0 0 1 0 8H6"></path><line x1="4" y1="12" x2="18" y2="12"></line></svg>
+            </button>
+            <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="无序列表">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </button>
+            <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="有序列表">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>
+            </button>
+            <div class="h-6 w-px bg-gray-200 mx-1"></div>
+            <button class="toolbar-btn" onclick="insertComponent('quote')" title="引用">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 7 4 8 8 8Z"></path><path d="M14 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 7 4 8 8 8Z"></path></svg>
+            </button>
+            <button class="toolbar-btn" onclick="showCodeInsertModal()" title="插入代码块">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            </button>
+            <button class="toolbar-btn" onclick="triggerImageUpload()" title="插入图片">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </button>
+            <input type="file" id="image-upload-input" class="hidden" accept="image/*">
+            <button class="toolbar-btn" onclick="insertComponent('hr')" title="分隔线">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+            <div class="h-6 w-px bg-gray-200 mx-1"></div>
+            <select id="card-type" class="bg-blue-100 border-blue-200 text-blue-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 h-9">
+                <option value="">插入卡片</option> <option value="minimalCard">基础卡片</option> <option value="infoCard">信息卡片</option> <option value="successCard">成功卡片</option> <option value="warningCard">注意卡片</option> <option value="dangerCard">警告卡片</option>
+            </select>
+            <div class="flex-grow"></div>
+            <button class="toolbar-btn" onclick="downloadHtml()" title="下载HTML">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
+            <button class="toolbar-btn bg-red-100 text-red-700" onclick="clearContent()" title="清空内容">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 左侧：编辑器 -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-700 mb-3">编辑区</h2>
+                <div id="editor" contenteditable="true">
+                     <!-- 内容将由JS自动加载 -->
+                </div>
+            </div>
+
+            <!-- 右侧：HTML输出 -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xl font-semibold text-gray-700">HTML 源代码</h2>
+                    <div id="status-indicator" class="text-sm text-gray-500 flex items-center">
+                        <span id="word-count" class="mr-4">字数: 0</span>
+                        <span id="save-status">已保存</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <textarea id="html-output" class="w-full h-[60vh] p-4 border rounded-lg bg-gray-900 text-white font-mono text-sm" readonly></textarea>
+                    <button onclick="copyHtml()" class="absolute top-3 right-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-md text-sm">复制</button>
+                </div>
+                 <div id="copy-message" class="text-green-600 font-semibold mt-2 opacity-0 transition-opacity duration-300">复制成功！</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 代码块插入弹窗 -->
+    <div id="code-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">插入代码块</h3>
+                <div class="mt-2 px-7 py-3">
+                    <select id="code-language" class="w-full bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 mb-4">
+                        <option value="javascript">JavaScript</option> <option value="python">Python</option> <option value="xml">HTML/XML</option> <option value="css">CSS</option> <option value="java">Java</option> <option value="sql">SQL</option> <option value="markdown">Markdown</option>
+                    </select>
+                    <div class="flex justify-center gap-x-8 mb-4">
+                        <label class="flex items-center"><input type="radio" name="code-theme" value="light" checked class="mr-2">明亮主题</label>
+                        <label class="flex items-center"><input type="radio" name="code-theme" value="dark" class="mr-2">暗黑主题</label>
+                    </div>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="insert-code-btn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">插入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 样式定义 ---
+        const styles = {
+            h1: `font-size: 24px; font-weight: bold; color: #000; margin: 0 0 15px;`, h2: `font-size: 20px; font-weight: bold; color: #000; margin: 0 0 12px;`, h3: `font-size: 18px; font-weight: bold; color: #000; margin: 0 0 10px;`, p:  `margin: 0 0 10px; text-align: left; color: #333; font-size: 15px; line-height: 1.6; word-wrap: break-word;`, blockquote: `background-color: #fff9e6; border-left: 4px solid #ffaa00; padding: 15px; margin: 15px 0; border-radius: 5px; color: #555;`, ul: `margin: 10px 0; padding-left: 20px; list-style-type: disc;`, ol: `margin: 10px 0; padding-left: 20px; list-style-type: decimal;`, li: `margin-bottom: 0.5em;`, img: `max-width: 100%; height: auto; display: block; margin: 16px auto; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);`, codeBlock: `background-color: #f6f8fa; color: #24292e; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; line-height: 1.5; padding: 12px; margin: 10px 0; border: 1px solid #e1e4e8; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-width: 100%; box-sizing: border-box;`, codeBlockDark: `background-color: #2d2d2d; color: #f8f8f2; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; line-height: 1.5; padding: 16px; margin: 10px 0; border: 1px solid #444; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-width: 100%; box-sizing: border-box;`, hr: `border: 0; height: 1px; background-color: #e0e0e0; margin: 25px 0;`,
+            minimalCard: { container: `background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 3px; padding: 15px; margin: 20px 0;`, title: `font-size: 18px; font-weight: bold; color: #333333; margin: 0 0 10px; line-height: 1.4;`, p: `margin: 0 0 10px; text-align: justify;` }, infoCard: { container: `background-color: #e7f3ff; border: 1px solid #007bff; border-radius: 8px; padding: 16px; margin: 20px 0;`, title: `margin-top: 0; margin-bottom: 10px; color: #007bff; font-weight: bold; font-size: 16px;`, p: `margin-bottom: 5px; color: #0066cc;` }, successCard: { container: `background-color: #e6f9e6; border: 1px solid #28a745; border-radius: 8px; padding: 16px; margin: 20px 0;`, title: `margin-top: 0; margin-bottom: 10px; color: #28a745; font-weight: bold; font-size: 16px;`, p: `margin-bottom: 8px; color: #218838;` }, warningCard: { container: `background-color: #fff9e6; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; margin: 20px 0;`, title: `margin-top: 0; margin-bottom: 10px; color: #d39e00; font-weight: bold; font-size: 16px;`, p: `margin-bottom: 0; color: #9c7600;` }, dangerCard: { container: `background-color: #ffebee; border: 1px solid #dc3545; border-radius: 8px; padding: 16px; margin: 20px 0;`, title: `margin-top: 0; margin-bottom: 10px; color: #dc3545; font-weight: bold; font-size: 16px;`, p: `margin-bottom: 0; color: #c82333;` }
+        };
+        const highlightStyles = { light: { 'hljs-comment': 'color: #6a737d;', 'hljs-keyword': 'color: #d73a49;', 'hljs-string': 'color: #032f62;', 'hljs-number': 'color: #005cc5;', 'hljs-built_in': 'color: #e36209;', 'hljs-doctag': 'color: #d73a49;', 'hljs-title': 'color: #6f42c1;', 'hljs-class .hljs-title': 'color: #6f42c1;', 'hljs-literal': 'color: #005cc5;', 'hljs-meta': 'color: #005cc5;', 'hljs-params': 'color: #24292e;', 'hljs-function': 'color: #6f42c1;', 'hljs-attr': 'color: #6f42c1;', 'hljs-tag': 'color: #22863a;', 'hljs-name': 'color: #22863a;', 'hljs-attribute': 'color: #6f42c1;', 'hljs-symbol': 'color: #005cc5;', 'hljs-bullet': 'color: #005cc5;', 'hljs-link': 'color: #032f62;', 'hljs-regexp': 'color: #032f62;', 'hljs-section': 'color: #005cc5; font-weight: bold;', 'hljs-strong': 'font-weight: bold;', 'hljs-emphasis': 'font-style: italic;', 'hljs-variable': 'color: #e36209;' }, dark: { 'hljs-comment': 'color: #8d939e;', 'hljs-keyword': 'color: #c586c0;', 'hljs-string': 'color: #ce9178;', 'hljs-number': 'color: #b5cea8;', 'hljs-built_in': 'color: #4ec9b0;', 'hljs-doctag': 'color: #608b4e;', 'hljs-title': 'color: #dcdcaa;', 'hljs-class .hljs-title': 'color: #4ec9b0;', 'hljs-literal': 'color: #569cd6;', 'hljs-meta': 'color: #569cd6;', 'hljs-params': 'color: #9cdcfe;', 'hljs-function': 'color: #dcdcaa;', 'hljs-attr': 'color: #9cdcfe;', 'hljs-tag': 'color: #569cd6;', 'hljs-name': 'color: #569cd6;', 'hljs-attribute': 'color: #9cdcfe;', 'hljs-symbol': 'color: #b5cea8;', 'hljs-bullet': 'color: #b5cea8;', 'hljs-link': 'color: #ce9178;', 'hljs-regexp': 'color: #d16969;', 'hljs-section': 'color: #569cd6; font-weight: bold;', 'hljs-strong': 'font-weight: bold;', 'hljs-emphasis': 'font-style: italic;', 'hljs-variable': 'color: #9cdcfe;' } };
+
+        // --- 全局变量 ---
+        const editor = document.getElementById('editor');
+        const htmlOutput = document.getElementById('html-output');
+        const codeModal = document.getElementById('code-modal');
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const saveStatusEl = document.getElementById('save-status');
+        const wordCountEl = document.getElementById('word-count');
+        const storageKey = 'wechatEditorContentV10'; // 使用新的键
+
+        // --- 防抖函数 ---
+        function debounce(func, delay) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; }
+
+        // --- 初始化和事件绑定 ---
+        window.onload = () => { loadContent(); debouncedUpdate(); };
+        editor.addEventListener('input', handleInput); 
+        editor.addEventListener('keydown', handleKeydown);
+        function formatDoc(command, value = null) { document.execCommand(command, false, value); editor.focus(); debouncedUpdate(); }
+        document.getElementById('block-type').addEventListener('change', (e) => { formatDoc('formatBlock', `<${e.target.value}>`); const s=window.getSelection(); if(!s.rangeCount)return; let el=s.getRangeAt(0).startContainer; while(el.nodeType!==1){el=el.parentNode;} if(styles[e.target.value]){el.style.cssText=styles[e.target.value];} debouncedUpdate(); });
+        document.getElementById('card-type').addEventListener('change', (e) => { if(e.target.value){insertComponent(e.target.value); e.target.value='';} });
+        
+        // --- 内容持久化逻辑 ---
+        function saveContent() { localStorage.setItem(storageKey, editor.innerHTML); }
+        function loadContent() {
+            const savedContent = localStorage.getItem(storageKey);
+            if (savedContent) { editor.innerHTML = savedContent; } 
+            else { editor.innerHTML = `<h1 style="font-size: 24px; font-weight: bold; color: rgb(0, 0, 0); margin: 0px 0px 15px;">欢迎使用V10.0版本</h1><p style="margin: 0px 0px 10px; text-align: left; color: rgb(51, 51, 51); font-size: 15px; line-height: 1.6; word-wrap: break-word;">您的内容将会被自动保存。现在，您可以直接在这里写作，或者尝试输入 <b># 标题</b>、<b>> 引用</b>、<b>* 列表</b> 等Markdown指令。</p><p style="margin: 0px 0px 10px; text-align: left; color: rgb(51, 51, 51); font-size: 15px; line-height: 1.6; word-wrap: break-word;">在标题、引用、列表末尾按回车，即可轻松退出当前模块。</p><p style="margin: 0px 0px 10px; text-align: left; color: rgb(51, 51, 51); font-size: 15px; line-height: 1.6; word-wrap: break-word;"><b>新功能：</b>将多行文本粘贴到卡片或代码块中，会自动进行智能排版！</p>`; }
+        }
+        function clearContent() {
+            if (confirm("确定要清空所有内容吗？此操作不可撤销。")) {
+                localStorage.removeItem(storageKey);
+                loadContent();
+                debouncedUpdate();
+            }
+        }
+        function downloadHtml() {
+            const htmlContent = htmlOutput.value;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `wechat-article-${Date.now()}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // --- 图片和智能粘贴处理逻辑 ---
+        function triggerImageUpload() { imageUploadInput.click(); }
+        imageUploadInput.addEventListener('change', (e) => { if (e.target.files[0]) { insertImageAsBase64(e.target.files[0]); } });
+        editor.addEventListener('paste', (e) => {
+            const targetCard = getParentBySelector(e.target, 'div[data-card-type]');
+            const targetPre = getParentBySelector(e.target, 'pre');
+            const items = e.clipboardData.items;
+            let hasImage = false;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile(); e.preventDefault(); insertImageAsBase64(file); hasImage = true; break;
+                }
+            }
+            if (hasImage) return;
+
+            if (targetCard) {
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                handleCardPaste(targetCard, text);
+            } else if (targetPre) {
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
+            }
+        });
+        function insertImageAsBase64(file) { const reader = new FileReader(); reader.onload = (e) => { const imgHtml = `<img src="${e.target.result}" style="${styles.img}">`; document.execCommand('insertHTML', false, imgHtml); debouncedUpdate(); }; reader.readAsDataURL(file); }
+        function handleCardPaste(card, text) {
+            const cardType = card.dataset.cardType;
+            const pStyle = styles[cardType]?.p || styles.p;
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            const fragment = document.createDocumentFragment();
+            lines.forEach(line => {
+                const p = document.createElement('p');
+                p.style.cssText = pStyle;
+                p.textContent = line;
+                fragment.appendChild(p);
+            });
+            const firstP = card.querySelector('p');
+            if (firstP) {
+                firstP.parentElement.innerHTML = ''; // 清空卡片内容
+                firstP.parentElement.appendChild(fragment);
+            } else {
+                card.appendChild(fragment);
+            }
+            debouncedUpdate();
+        }
+
+        // --- 代码块弹窗逻辑 ---
+        function showCodeInsertModal() { codeModal.classList.remove('hidden'); }
+        function hideCodeInsertModal() { codeModal.classList.add('hidden'); }
+        document.getElementById('insert-code-btn').addEventListener('click', () => { const lang = document.getElementById('code-language').value; const theme = document.querySelector('input[name="code-theme"]:checked').value; insertComponent('codeBlock', { lang, theme }); hideCodeInsertModal(); });
+        codeModal.addEventListener('click', (e) => { if (e.target === codeModal) { hideCodeInsertModal(); } });
+        
+        // --- 智能回车和Markdown快捷输入 ---
+        function handleKeydown(e) {
+            if (e.key !== 'Enter') return;
+            const selection = window.getSelection(); if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0); let block = getParentBlock(range.startContainer); if (!block) return;
+            if (block.tagName === 'LI' && block.textContent.trim() === '') { e.preventDefault(); document.execCommand(block.parentElement.tagName === 'OL' ? 'insertOrderedList' : 'insertUnorderedList'); return; }
+            const isAtEnd = isCursorAtEndOfElement(block, range);
+            if (isAtEnd && ['H1', 'H2', 'H3', 'BLOCKQUOTE', 'PRE'].includes(block.tagName)) { e.preventDefault(); const p = document.createElement('p'); p.innerHTML = '<br>'; block.after(p); const newRange = document.createRange(); newRange.setStart(p, 0); newRange.collapse(true); selection.removeAllRanges(); selection.addRange(newRange); }
+        }
+        function handleInput(e) {
+            debouncedUpdate();
+            if (e.inputType === 'insertText' && e.data === ' ') { handleMarkdownShortcuts(); }
+        }
+        function handleMarkdownShortcuts() {
+            const selection = window.getSelection(); if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0); const node = range.startContainer; if (node.nodeType !== 3) return;
+            const text = node.textContent.substring(0, range.startOffset);
+            const patterns = { '# ': 'h1', '## ': 'h2', '### ': 'h3', '> ': 'blockquote', '* ': 'insertUnorderedList', '- ': 'insertUnorderedList', '1. ': 'insertOrderedList' };
+            for (const pattern in patterns) {
+                if (text.endsWith(pattern)) {
+                    range.setStart(node, text.length - pattern.length); range.setEnd(node, text.length); range.deleteContents();
+                    if (patterns[pattern].startsWith('insert')) { formatDoc(patterns[pattern]); } else { formatDoc('formatBlock', patterns[pattern]); }
+                    return;
+                }
+            }
+        }
+
+        // --- 组件插入逻辑 ---
+        function insertComponent(type, options = {}) {
+            editor.focus();
+            let htmlToInsert = '';
+            if (type === 'codeBlock') { const theme = options.theme || 'light'; const lang = options.lang || 'javascript'; const styleKey = theme === 'dark' ? 'codeBlockDark' : 'codeBlock'; htmlToInsert = `<pre data-language="${lang}" data-theme="${theme}" style="${styles[styleKey]}">\n</pre><p style="${styles.p}"><br></p>`;
+            } else if (type === 'quote') { formatDoc('formatBlock', 'blockquote');
+            } else if (type === 'hr') { htmlToInsert = `<hr style="${styles.hr}"><p style="${styles.p}"><br></p>`;
+            } else if (styles[type] && typeof styles[type] === 'object') { const cardStyle = styles[type]; htmlToInsert = `<div style="${cardStyle.container}" data-card-type="${type}"><h4 style="${cardStyle.title}">卡片标题</h4><p style="${cardStyle.p}">这是卡片的内容。您可以编辑这里的文字。</p></div><p style="${styles.p}"><br></p>`; }
+            if(htmlToInsert) document.execCommand('insertHTML', false, htmlToInsert);
+            debouncedUpdate();
+        }
+
+        // --- 核心：更新HTML输出 (防抖) ---
+        const debouncedUpdate = debounce(() => {
+            saveStatusEl.textContent = '正在保存...';
+            saveStatusEl.classList.add('text-yellow-600');
+            saveStatusEl.classList.remove('text-gray-500', 'text-green-600');
+            setTimeout(() => {
+                const editorDiv = editor.cloneNode(true);
+                editorDiv.querySelectorAll('*:not(img)').forEach(el => { const tagName = el.tagName.toLowerCase(); if (styles[tagName] && typeof styles[tagName] === 'string') { if (tagName !== 'li' || !el.getAttribute('style')) { el.style.cssText = styles[tagName]; } } });
+                editorDiv.querySelectorAll('ul, ol').forEach(list => { list.style.cssText = styles[list.tagName.toLowerCase()]; list.querySelectorAll('li').forEach(li => { li.style.cssText = styles.li; }); });
+                editorDiv.querySelectorAll('img').forEach(img => { img.style.cssText = styles.img; }); 
+                editorDiv.querySelectorAll('pre').forEach(pre => { const lang = pre.dataset.language || 'plaintext'; const theme = pre.dataset.theme || 'light'; const styleKey = theme === 'dark' ? 'codeBlockDark' : 'codeBlock'; pre.style.cssText = styles[styleKey]; const codeText = pre.textContent; if (hljs.getLanguage(lang) && codeText.trim() !== '') { const highlighted = hljs.highlight(codeText, { language: lang, ignoreIllegals: true }).value; pre.innerHTML = convertHljsClassesToInlineStyles(highlighted, theme); } else { pre.innerHTML = codeText; } });
+                htmlOutput.value = formatHtml(editorDiv.innerHTML);
+                saveContent(); 
+                wordCountEl.textContent = `字数: ${editor.innerText.replace(/\s/g, '').length}`;
+                saveStatusEl.textContent = '已保存';
+                saveStatusEl.classList.remove('text-yellow-600');
+                saveStatusEl.classList.add('text-green-600');
+            }, 100);
+        }, 500);
+
+        // --- 核心：将 highlight.js 的 class 转换为内联 style ---
+        function convertHljsClassesToInlineStyles(htmlString, theme) {
+            const themeStyles = highlightStyles[theme]; if (!themeStyles) return htmlString; let finalHtml = htmlString;
+            for (const className in themeStyles) { const style = themeStyles[className]; const regex = new RegExp(`class="(${className.replace('.', ' ' )}|${className.replace('.', ' hljs-')})"`,'g'); finalHtml = finalHtml.replace(regex, `style="${style}"`); }
+            return finalHtml.replace(/ class="[^"]*"/g, '');
+        }
+        
+        // --- 辅助函数 ---
+        function getParentBlock(node) {
+            while (node && node.parentElement !== editor) { if (['P', 'H1', 'H2', 'H3', 'LI', 'BLOCKQUOTE', 'PRE'].includes(node.tagName)) return node; node = node.parentElement; }
+            if (node && ['P', 'H1', 'H2', 'H3', 'LI', 'BLOCKQUOTE', 'PRE'].includes(node.tagName)) return node; return null;
+        }
+        function getParentBySelector(node, selector) {
+            let el = node;
+            while (el && el !== editor && el !== document) {
+                if (typeof el.matches === 'function' && el.matches(selector)) return el;
+                el = el.parentElement;
+            }
+            return null;
+        }
+        function isCursorAtEndOfElement(element, range) {
+            if (range.endOffset < element.textContent.length) return false;
+            let node = range.endContainer; while(node !== element) { if (node.nextSibling) return false; node = node.parentNode; } return true;
+        }
+        function formatHtml(html) { let i='  ',f='';html.split(/>\s*</).forEach(function(e){if(e.match(/^\/\w/)){i=i.substring(2)}f+=i+'<'+e+'>\n';if(e.match(/^<?\w[^>]*[^\/]$/)&&!e.startsWith("input")&&!e.startsWith("br")&&!e.startsWith("hr")){i+='  '}});return f.substring(1,f.length-2).trim(); }
+        function copyHtml() { htmlOutput.select(); document.execCommand('copy'); const m=document.getElementById('copy-message'); m.style.opacity='1'; setTimeout(()=>{m.style.opacity='0'},2000); }
+    </script>
+</body>
+</html>
