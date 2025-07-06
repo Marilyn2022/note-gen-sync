@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>微信公众号文章排版工具V17.0-终极优化版</title>
+    <title>微信公众号文章排版工具V20.0-智能跳出版</title>
     <!-- 使用Tailwind CSS来快速构建工具界面 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 highlight.js 核心库和常用语言包 -->
@@ -72,7 +72,7 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">微信公众号文章排版工具V17.0</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">微信公众号文章排版工具V20.0</h1>
             <p class="text-gray-600 mt-2">所见即所得，功能完整，高度兼容</p>
         </header>
 
@@ -257,7 +257,7 @@
         const imageUploadInput = document.getElementById('image-upload-input');
         const saveStatusEl = document.getElementById('save-status');
         const wordCountEl = document.getElementById('word-count');
-        const storageKey = 'wechatEditorContentV17';
+        const storageKey = 'wechatEditorContentV19';
 
         // --- 防抖函数 ---
         function debounce(func, delay) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; }
@@ -296,7 +296,7 @@
         function saveContent() { localStorage.setItem(storageKey, editor.innerHTML); }
         function loadContent() {
             const savedContent = localStorage.getItem(storageKey);
-            editor.innerHTML = savedContent || `<h1 style="${styles.h1}">欢迎使用V17.0</h1><p style="${styles.p}">您的内容将会被自动保存。现在，您可以直接在这里写作，或者尝试输入 <b># 标题</b>、<b>> 引用</b>、<b>* 列表</b> 等Markdown指令。</p><p style="${styles.p}">在标题、引用、列表末尾按回车，即可轻松退出当前模块。</p>`;
+            editor.innerHTML = savedContent || `<h1 style="${styles.h1}">欢迎使用V19.0</h1><p style="${styles.p}">您的内容将会被自动保存。现在，您可以直接在这里写作，或者尝试输入 <b># 标题</b>、<b>> 引用</b>、<b>* 列表</b> 等Markdown指令。</p><p style="${styles.p}">在标题、引用、列表末尾按回车，即可轻松退出当前模块。</p>`;
         }
         function showConfirmClearModal() { confirmClearModal.classList.remove('hidden'); }
         function hideConfirmClearModal() { confirmClearModal.classList.add('hidden'); }
@@ -375,12 +375,26 @@
             const keywordsToBold = ['核心要点', '注意事项', '关键信息', '重要提示'];
             const lines = text.split('\n').filter(line => line.trim() !== '');
             if (lines.length === 0) return;
+            
+            const titleNode = card.querySelector('h4');
+            const contentHolder = card.querySelector('.card-content');
+            
+            // Smartly set title and content
+            if (lines.length > 0) {
+                if(titleNode) titleNode.innerHTML = `<b>${escapeHtml(lines[0])}</b>`;
+                if (lines.length > 1) {
+                   lines.shift(); // Remove title line
+                } else {
+                   lines[0] = ''; // Keep one line for content
+                }
+            }
 
             const fragment = document.createDocumentFragment();
             lines.forEach(line => {
-                let processedHtml = line;
+                if (!line) return;
+                let processedHtml = escapeHtml(line); // Sanitize first
                 keywordsToBold.forEach(keyword => {
-                    const regex = new RegExp(`(${keyword})`, 'g');
+                    const regex = new RegExp(`(${escapeRegExp(keyword)})`, 'g');
                     processedHtml = processedHtml.replace(regex, `<b>$1</b>`);
                 });
                 const p = document.createElement('p');
@@ -388,10 +402,14 @@
                 fragment.appendChild(p);
             });
 
-            const contentHolder = card.querySelector('.card-content');
             if(contentHolder){
                 contentHolder.querySelectorAll('p').forEach(p => p.remove());
-                contentHolder.appendChild(fragment);
+                if (fragment.childNodes.length > 0) {
+                    contentHolder.appendChild(fragment);
+                } else {
+                    // if only title was pasted, add an empty p for editing
+                    contentHolder.innerHTML = `<p><br></p>`;
+                }
             }
             updateHtmlOutput();
         }
@@ -434,7 +452,7 @@
             const lang = document.getElementById('code-language').value;
             const theme = document.querySelector('input[name="code-theme"]:checked').value;
             const showLineNumbers = document.getElementById('show-line-numbers').checked;
-            insertComponent('codeBlock', { lang, theme, showLineNumbers });
+            insertComponent('codeBlock', { lang, theme, showLineNumbers, keywords: '' });
             hideCodeInsertModal();
         }
 
@@ -467,18 +485,8 @@
             const currentBlock = getParentBlock(range.startContainer);
             if (!currentBlock) return;
             
-            if (currentBlock.textContent.trim() === '' && ['BLOCKQUOTE', 'H1', 'H2', 'H3', 'LI'].includes(currentBlock.tagName)) {
-                e.preventDefault();
-                if (currentBlock.tagName === 'LI') {
-                    document.execCommand(currentBlock.parentElement.tagName === 'OL' ? 'insertOrderedList' : 'insertUnorderedList');
-                } else {
-                    formatDoc('formatBlock', 'p');
-                }
-                return;
-            }
-
             const moduleContainer = getParentBySelector(currentBlock, 'div[data-language], div[data-card-type]');
-            if (moduleContainer && isCursorAtEndOfElement(currentBlock, range)) {
+            if (moduleContainer) {
                  e.preventDefault();
                  const newParagraph = document.createElement('p');
                  newParagraph.innerHTML = '<br>';
@@ -487,10 +495,13 @@
                  return;
             }
             
-            const codeBody = getParentBySelector(range.startContainer, 'pre[data-code-body]');
-            if(codeBody) {
+            if (currentBlock.textContent.trim() === '' && ['BLOCKQUOTE', 'H1', 'H2', 'H3', 'LI'].includes(currentBlock.tagName)) {
                 e.preventDefault();
-                document.execCommand('insertLineBreak');
+                if (currentBlock.tagName === 'LI') {
+                    document.execCommand(currentBlock.parentElement.tagName === 'OL' ? 'insertOrderedList' : 'insertUnorderedList');
+                } else {
+                    formatDoc('formatBlock', 'p');
+                }
             }
         }
 
@@ -526,7 +537,7 @@
             let focusTargetSelector;
 
             if (type === 'codeBlock') {
-                htmlToInsert = buildCodeBlockHtml(options.lang, options.theme, options.showLineNumbers, '', true);
+                htmlToInsert = buildCodeBlockHtml(options, '', true);
                 focusTargetSelector = '[contenteditable="true"]';
             } else if (type === 'quote') {
                 formatDoc('formatBlock', 'blockquote');
@@ -574,13 +585,14 @@
                 const editorDiv = editor.cloneNode(true);
                 
                 // 净化HTML
-                editorDiv.querySelectorAll('[contenteditable], [class], [data-language], [data-theme], [data-show-line-numbers], [data-code-body], [onclick]').forEach(el => {
+                editorDiv.querySelectorAll('[contenteditable], [class], [data-language], [data-theme], [data-show-line-numbers], [data-code-body], [data-keywords], [onclick]').forEach(el => {
                     el.removeAttribute('contenteditable');
                     el.removeAttribute('class');
                     el.removeAttribute('data-language');
                     el.removeAttribute('data-theme');
                     el.removeAttribute('data-show-line-numbers');
                     el.removeAttribute('data-code-body');
+                    el.removeAttribute('data-keywords');
                     el.removeAttribute('onclick');
                 });
                 
@@ -631,20 +643,29 @@
                 const outputNode = editorDiv.querySelectorAll('div[data-language]')[index];
                 if (!outputNode) return;
                 const codeText = editorNode.querySelector('pre[data-code-body]').innerText;
-                const finalCodeBlockHtml = buildCodeBlockHtml(editorNode.dataset.language, editorNode.dataset.theme, editorNode.dataset.showLineNumbers === 'true', codeText, false);
+                const options = {
+                    lang: editorNode.dataset.language,
+                    theme: editorNode.dataset.theme,
+                    showLineNumbers: editorNode.dataset.showLineNumbers === 'true',
+                    keywords: '' // No keywords for final output
+                };
+                const finalCodeBlockHtml = buildCodeBlockHtml(options, codeText, false);
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = finalCodeBlockHtml;
                 if(tempDiv.firstChild) outputNode.replaceWith(tempDiv.firstChild);
             });
         }
         
-        function buildCodeBlockHtml(lang, theme, showLineNumbers, codeText, isForEditor) {
+        function buildCodeBlockHtml(options, codeText, isForEditor) {
+            const { lang, theme, showLineNumbers, keywords } = options;
             const s = styles.code;
-            const highlightedHtml = convertHljsClassesToInlineStyles(hljs.highlight(codeText, { language: lang, ignoreIllegals: true }).value, theme);
-            const copyButtonHtml = isForEditor ? `<div class="code-copy-btn" style="${s.copy(theme)}" onclick="copyCode(this)"><span>复制</span></div>` : `<div style="${s.copy(theme)}">Copy</div>`;
+            
+            let highlightedHtml = applySyntaxHighlight(codeText, lang, theme);
+
+            const copyButtonHtml = isForEditor ? `<div style="${s.copy(theme)}" onclick="copyCode(this)"><span>复制</span></div>` : `<div style="${s.copy(theme)}">Copy</div>`;
             const headerHtml = `<div style="${s.header(theme)}"><div style="${s.dotsContainer}"><span style="${s.dot('#ff5f56')}"></span><span style="${s.dot('#ffbd2e')}"></span><span style="${s.dot('#27c93f')}"></span></div><div style="${s.title(theme)}">${getLangDisplayName(lang)}</div>${copyButtonHtml}</div>`;
             const bodyHtml = `<div style="${s.body(theme)}"><pre data-code-body="true" style="margin:0; padding:0;" ${isForEditor ? 'contenteditable="true"' : ''}>${highlightedHtml || '<br>'}</pre></div>`;
-            const editorAttrs = isForEditor ? `data-language="${lang}" data-theme="${theme}" data-show-line-numbers="${showLineNumbers}"` : '';
+            const editorAttrs = isForEditor ? `data-language="${lang}" data-theme="${theme}" data-show-line-numbers="${showLineNumbers}" data-keywords="${keywords}"` : '';
             return `<div style="${s.wrapper(theme)}" ${editorAttrs}>${headerHtml}${bodyHtml}</div>`;
         }
 
@@ -652,15 +673,24 @@
             const codeBody = codeBlock.querySelector('pre[data-code-body]');
             if (!codeBody) return;
 
-            const lang = codeBlock.dataset.language;
-            const theme = codeBlock.dataset.theme;
+            const options = {
+                lang: codeBlock.dataset.language,
+                theme: codeBlock.dataset.theme,
+                keywords: '' // No keywords
+            };
             
             const cursor = saveCursor(codeBody);
             const text = codeBody.innerText;
-            const highlightedHtml = convertHljsClassesToInlineStyles(hljs.highlight(text, { language: lang, ignoreIllegals: true }).value, theme);
+            
+            let highlightedHtml = applySyntaxHighlight(text, options.lang, options.theme);
             
             codeBody.innerHTML = highlightedHtml || '<br>';
             restoreCursor(codeBody, cursor);
+        }
+
+        function applySyntaxHighlight(text, lang, theme) {
+            const highlighted = hljs.highlight(text || '', { language: lang, ignoreIllegals: true }).value;
+            return convertHljsClassesToInlineStyles(highlighted, theme);
         }
 
         function convertHljsClassesToInlineStyles(htmlString, theme) {
@@ -748,6 +778,13 @@
             }
             selection.removeAllRanges();
             selection.addRange(range);
+        }
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
     </script>
