@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>微信公众号Markdown格式化工具3.3 (终极版)</title>
+    <title>微信公众号Markdown格式化工具3.3 (最终修复版)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -20,15 +20,23 @@
             --background-color: #f8f9fa;
         }
 
+        /* 修复1: 确保html和body有高度，以便内部元素使用height: 100% */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* 包含padding在内的总高度 */
+        }
+
         /* 全局样式 */
         body {
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            color: var(--text-color);
-            background-color: #1E293B;
+            /* background-color: var(--background-color);  Initial load background should be dark theme for the tool itself */
+            background-color: #1E293B; /* 工具界面的背景色保持不变 */
             padding: 20px;
-            margin: 0;
-            box-sizing: border-box;
+            /* margin: 0; 已经设置在html,body */
+            /* box-sizing: border-box; 已经设置在html,body */
             font-size: 16px; /* Base font size */
         }
 
@@ -38,6 +46,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            /* 修复2: 容器高度应计算视口高度减去body的padding */
+            height: calc(100vh - 40px); 
         }
 
         /* 头部样式 */
@@ -66,7 +76,9 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            height: calc(100vh - 200px);
+            /* 修复3: flex-grow让它填充剩余空间，并确保最小高度 */
+            flex-grow: 1; 
+            min-height: 400px; /* 至少保证一个可见高度 */
         }
 
         .editor-container,
@@ -79,6 +91,8 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            /* 修复4: 确保子容器的高度是100% */
+            height: 100%; 
         }
 
         /* 面板头部样式 */
@@ -191,7 +205,9 @@
             overflow-y: auto;
             height: 100%;
             font-size: 1rem;
-            color: #F9FAFB;
+            /* 修复5: 移除这里的 background-color 和 color，由JS动态设置 */
+            /* color: var(--text-color); */
+            /* background-color: var(--background-color); */
         }
 
         /* Toast 样式 */
@@ -249,63 +265,86 @@
         }
 
         /* --- 主题样式区 --- */
+        /* 修复6: 移除了 :root 中的主题相关变量定义，由.theme-default等直接设置 */
+        /* 保留了全局的，作为默认值，但主题特定变量直接在主题类中定义 */
+
+        /* 原始的:root 变量，用于工具界面及未明确主题时的回退 */
+        /* --text-light 变量也在这里定义一个通用回退 */
+        /* 主题类直接设置变量，不依赖:root，提高明确性 */
+        
         .theme-default {
             --header-color: #1E40AF; --link-color: #3B82F6; --code-bg: #F3F4F6; --quote-border: #D1D5DB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #111827;
             --intro-bg: #EBF5FF; --intro-border: #3B82F6; --tip-bg: #EBF5FF; --tip-border: #3B82F6; --success-bg: #F0FFF4; --success-border: #48BB78; --warning-bg: #FFFBEB; --warning-border: #F59E0B;
+            --text-light: #777; /* 显式为每个主题定义 text-light */
         }
         .theme-green {
             --header-color: #047857; --link-color: #059669; --code-bg: #ECFDF5; --quote-border: #A7F3D0; --table-header: #ECFDF5; --table-border: #A7F3D0; --background-color: #FFFFFF; --text-color: #047857;
             --intro-bg: #ECFDF5; --intro-border: #059669; --tip-bg: #ECFDF5; --tip-border: #059669; --success-bg: #D1FAE5; --success-border: #10B981; --warning-bg: #FEF3C7; --warning-border: #D97706;
+            --text-light: #4F8B70;
         }
         .theme-purple {
             --header-color: #7C3AED; --link-color: #8B5CF6; --code-bg: #F5F3FF; --quote-border: #C4B5FD; --table-header: #F5F3FF; --table-border: #C4B5FD; --background-color: #FFFFFF; --text-color: #7C3AED;
             --intro-bg: #F5F3FF; --intro-border: #8B5CF6; --tip-bg: #F5F3FF; --tip-border: #8B5CF6; --success-bg: #F0FDFA; --success-border: #2DD4BF; --warning-bg: #FEFCE8; --warning-border: #EAB308;
+            --text-light: #A57CDA;
         }
         .theme-github {
             --header-color: #24292F; --link-color: #0969DA; --code-bg: #F6F8FA; --quote-border: #D0D7DE; --table-header: #F6F8FA; --table-border: #D0D7DE; --background-color: #FFFFFF; --text-color: #24292F;
             --intro-bg: #F6F8FA; --intro-border: #0969DA; --tip-bg: #F6F8FA; --tip-border: #0969DA; --success-bg: #E6FFED; --success-border: #28A745; --warning-bg: #FFFBDD; --warning-border: #B08800;
+            --text-light: #586069;
         }
         .theme-retro {
             --header-color: #B45309; --link-color: #D97706; --code-bg: #FEF3C7; --quote-border: #FCD34D; --table-header: #FEF3C7; --table-border: #FCD34D; --background-color: #FFFBEB; --text-color: #92400E;
             --intro-bg: #FEF3C7; --intro-border: #D97706; --tip-bg: #FEF3C7; --tip-border: #D97706; --success-bg: #F7FEE7; --success-border: #65A30D; --warning-bg: #FFF7ED; --warning-border: #FB923C;
+            --text-light: #D97706;
         }
         .theme-sakura {
             --header-color: #BE185D; --link-color: #EC4899; --code-bg: #FDF2F8; --quote-border: #F9A8D4; --table-header: #FDF2F8; --table-border: #F9A8D4; --background-color: #FFFFFF; --text-color: #BE185D;
             --intro-bg: #FDF2F8; --intro-border: #EC4899; --tip-bg: #FDF2F8; --tip-border: #EC4899; --success-bg: #F0FDFA; --success-border: #14B8A6; --warning-bg: #FFFBEB; --warning-border: #F59E0B;
+            --text-light: #F7B5D6;
         }
         .theme-gold {
             --header-color: #A16207; --link-color: #CA8A04; --code-bg: #FEF9C3; --quote-border: #FDE047; --table-header: #FEF9C3; --table-border: #FDE047; --background-color: #FFFEF2; --text-color: #A16207;
             --intro-bg: #FEF9C3; --intro-border: #CA8A04; --tip-bg: #FEF9C3; --tip-border: #CA8A04; --success-bg: #F7FEE7; --success-border: #84CC16; --warning-bg: #FFF7ED; --warning-border: #F97316;
+            --text-light: #B88A00;
         }
         .theme-mint {
             --header-color: #059669; --link-color: #10B981; --code-bg: #ECFCCB; --quote-border: #BEF264; --table-header: #ECFCCB; --table-border: #BEF264; --background-color: #F7FEE7; --text-color: #059669;
             --intro-bg: #F0FDF4; --intro-border: #10B981; --tip-bg: #F0FDF4; --tip-border: #10B981; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEFCE8; --warning-border: #EAB308;
+            --text-light: #6EE7B7;
         }
         .theme-cyberpunk {
             --header-color: #06FFA5; --link-color: #00D9FF; --code-bg: #0F0F23; --quote-border: #FF006E; --table-header: #0F0F23; --table-border: #FF006E; --background-color: #0A0A0A; --text-color: #06FFA5;
             --intro-bg: #0F0F23; --intro-border: #00D9FF; --tip-bg: #0F0F23; --tip-border: #00D9FF; --success-bg: #0F231A; --success-border: #06FFA5; --warning-bg: #230F1A; --warning-border: #FF006E;
+            --text-light: #00FFFF;
         }
         .theme-dark {
             --header-color: #F9FAFB; --link-color: #60A5FA; --code-bg: #374151; --quote-border: #6B7280; --table-header: #374151; --table-border: #6B7280; --background-color: #111827; --text-color: #F9FAFB;
             --intro-bg: #1F2937; --intro-border: #60A5FA; --tip-bg: #1F2937; --tip-border: #60A5FA; --success-bg: #163324; --success-border: #34D399; --warning-bg: #332517; --warning-border: #FBBF24;
+            --text-light: #9CA3AF;
         }
         .theme-ocean {
             --header-color: #0369A1; --link-color: #0284C7; --code-bg: #E0F2FE; --quote-border: #7DD3FC; --table-header: #E0F2FE; --table-border: #7DD3FC; --background-color: #F0F9FF; --text-color: #0369A1;
             --intro-bg: #E0F2FE; --intro-border: #0284C7; --tip-bg: #E0F2FE; --tip-border: #0284C7; --success-bg: #EFF6FF; --success-border: #3B82F6; --warning-bg: #FEFCE8; --warning-border: #EAB308;
+            --text-light: #60A5FA;
         }
         .theme-forest {
             --header-color: #166534; --link-color: #16A34A; --code-bg: #F0FDF4; --quote-border: #86EFAC; --table-header: #F0FDF4; --table-border: #86EFAC; --background-color: #F7FEE7; --text-color: #166534;
             --intro-bg: #DCFCE7; --intro-border: #16A34A; --tip-bg: #DCFCE7; --tip-border: #16A34A; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEF3C7; --warning-border: #D97706;
+            --text-light: #4ADE80;
         }
         .theme-minimal {
             --header-color: #374151; --link-color: #6B7280; --code-bg: #F9FAFB; --quote-border: #E5E7EB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #374151;
             --intro-bg: #F9FAFB; --intro-border: #6B7280; --tip-bg: #F9FAFB; --tip-border: #6B7280; --success-bg: #F0FDF4; --success-border: #16A34A; --warning-bg: #FEFCE8; --warning-border: #D97706;
+            --text-light: #888;
         }
 
-        /* 预览内容样式 */
+        /* 预览内容样式 - 移除背景和颜色设置，将在JS中动态应用 */
         #preview-output {
-            background-color: var(--background-color);
-            color: var(--text-color);
+            padding: 20px;
+            overflow-y: auto;
+            height: 100%;
+            font-size: 1rem;
+            /* background-color 和 color 将由 JS 动态设置 */
         }
 
         /* --- 标题字号优化 (v3.1) --- */
@@ -349,10 +388,10 @@
 
         /* 响应式布局 */
         @media (max-width: 768px) {
-            .container { padding: 10px; }
+            .container { padding: 10px; height: auto; } /* 响应式调整高度 */
             h1 { font-size: 2rem; }
             .subtitle { font-size: 1rem; }
-            .main-content { flex-direction: column; height: auto; }
+            .main-content { flex-direction: column; height: auto; min-height: unset; } /* 移除固定高度 */
             .editor-container, .preview-container { height: 50vh; }
             .panel-header { padding: 10px; flex-direction: column; gap: 10px; }
             .controls { width: 100%; justify-content: center; }
@@ -529,13 +568,28 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
                 }
             });
             previewOutput.innerHTML = doc.body.innerHTML;
+            // 修复7: 重新渲染内容后，重新应用当前主题的颜色到 previewOutput
+            applyTheme(document.querySelector('.theme-button.selected')?.dataset.theme || 'default');
         }
 
         function applyTheme(theme) {
-            previewOutput.className = 'theme-' + theme;
+            // 移除旧主题类并添加新主题类
+            previewOutput.className = 'theme-' + theme; // 应用主题类
+            
             themeButtons.forEach(btn => btn.classList.remove('selected'));
             const targetButton = document.querySelector(`.theme-button[data-theme="${theme}"]`);
             if (targetButton) targetButton.classList.add('selected');
+
+            // 修复8: 获取当前主题的CSS变量值并直接应用到 #preview-output 的style上
+            const tempDiv = document.createElement('div');
+            tempDiv.className = 'theme-' + theme; // 应用主题类以获取计算后的变量值
+            document.body.appendChild(tempDiv); // 必须添加到DOM才能正确计算样式
+            const computedStyle = getComputedStyle(tempDiv);
+            
+            previewOutput.style.backgroundColor = computedStyle.getPropertyValue('--background-color');
+            previewOutput.style.color = computedStyle.getPropertyValue('--text-color');
+            
+            document.body.removeChild(tempDiv); // 清理临时元素
         }
 
         // --- 浏览器兼容性强化的复制功能 ---
@@ -546,7 +600,9 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             if (navigator.clipboard && typeof navigator.clipboard.write === 'function' && typeof ClipboardItem !== 'undefined') {
                 try {
                     const htmlBlob = new Blob([formattedContent], { type: 'text/html' });
-                    const clipboardItem = new ClipboardItem({ 'text/html': htmlBlob });
+                    // Explicitly add 'text/plain' for better compatibility with some applications
+                    const textBlob = new Blob([markdownInput.value], { type: 'text/plain' }); 
+                    const clipboardItem = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
 
                     navigator.clipboard.write([clipboardItem]).then(() => {
                         showCopySuccessMessage();
@@ -600,10 +656,12 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
         
         function prepareContentForCopy() {
             const tempPreview = document.createElement('div');
-            tempPreview.className = previewOutput.className;
+            // Apply the current theme's class to the temporary element to get computed styles
+            tempPreview.className = previewOutput.className; 
             document.body.appendChild(tempPreview);
             const themeStyles = getComputedStyle(tempPreview);
 
+            // 修复9: 确保所有的变量都被正确获取，包括text-light
             const variables = {
                 '--background-color': '#FFFFFF', '--text-color': '#111827',
                 '--header-color': '#1E40AF', '--link-color': '#3B82F6',
@@ -612,17 +670,20 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
                 '--intro-bg': '#EBF5FF', '--intro-border': '#3B82F6',
                 '--tip-bg': '#EBF5FF', '--tip-border': '#3B82F6',
                 '--success-bg': '#F0FFF4', '--success-border': '#48BB78',
-                '--warning-bg': '#FFFBEB', '--warning-border': '#F59E0B'
+                '--warning-bg': '#FFFBEB', '--warning-border': '#F59E0B',
+                '--text-light': '#777' // 显式包含
             };
 
+            // Retrieve actual computed styles from the applied theme
             for (const key in variables) {
+                // Use getPropertyValue for custom properties, fallback to default if not set
                 variables[key] = themeStyles.getPropertyValue(key).trim() || variables[key];
             }
             
-            document.body.removeChild(tempPreview);
+            document.body.removeChild(tempPreview); // Clean up temp element
 
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = previewOutput.innerHTML;
+            tempDiv.innerHTML = previewOutput.innerHTML; // Get the currently rendered HTML
 
             const applyStyles = (elements, styleMap) => {
                 elements.forEach(el => {
@@ -630,10 +691,11 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
                     for (const prop in styleMap) {
                         styleString += `${prop}: ${styleMap[prop]}; `;
                     }
-                    el.setAttribute('style', styleString);
+                    el.setAttribute('style', styleString.trim()); // Trim to avoid trailing semicolon issues
                 });
             };
             
+            // Outer section styling, crucial for WeChat to pick up base styles
             const finalHtml = `<section style="background-color:${variables['--background-color']}; color:${variables['--text-color']}; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; line-height:1.75; padding:20px 15px; font-size: 16px;">${tempDiv.innerHTML}</section>`;
             tempDiv.innerHTML = finalHtml;
             
@@ -644,33 +706,43 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             applyStyles(tempDiv.querySelectorAll('h3'), { ...cssToJs(baseHeaderStyle), 'font-size': '20px' });
             applyStyles(tempDiv.querySelectorAll('h4'), { ...cssToJs(baseHeaderStyle), 'font-size': '18px' });
             applyStyles(tempDiv.querySelectorAll('h5'), { ...cssToJs(baseHeaderStyle), 'font-size': '16px' });
-            applyStyles(tempDiv.querySelectorAll('h6'), { ...cssToJs(baseHeaderStyle), 'font-size': '14px', 'color': 'grey' });
+            applyStyles(tempDiv.querySelectorAll('h6'), { ...cssToJs(baseHeaderStyle), 'font-size': '14px', 'color': variables['--text-light'] }); // 使用变量
             
-            // FINAL FIX: Wrap header content in <strong> for robust bolding
+            // 修复10: 确保所有标题内容都包裹在<strong>中并显式加粗
             tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
-                // Prevent double-wrapping if content already contains <strong> (e.g., from sample markdown)
-                if (!heading.innerHTML.trim().startsWith('<strong>')) {
-                    heading.innerHTML = `<strong>${heading.innerHTML}</strong>`;
+                // 如果标题内容没有包裹在 strong 中，则添加 strong 标签
+                if (!heading.firstElementChild || heading.firstElementChild.tagName !== 'STRONG') {
+                    const originalContent = heading.innerHTML;
+                    heading.innerHTML = `<strong style="font-weight: bold;">${originalContent}</strong>`;
+                } else {
+                    // 如果已经有 strong 标签，确保它有 bold 样式
+                    heading.firstElementChild.style.fontWeight = 'bold';
                 }
             });
 
-            // 内容块样式
-            applyStyles(tempDiv.querySelectorAll('.custom-block.intro'), { 'background-color': variables['--intro-bg'], 'border-left': `5px solid ${variables['--intro-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px' });
-            applyStyles(tempDiv.querySelectorAll('.custom-block.tip'), { 'background-color': variables['--tip-bg'], 'border-left': `5px solid ${variables['--tip-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px' });
-            applyStyles(tempDiv.querySelectorAll('.custom-block.success'), { 'background-color': variables['--success-bg'], 'border-left': `5px solid ${variables['--success-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px' });
-            applyStyles(tempDiv.querySelectorAll('.custom-block.warning'), { 'background-color': variables['--warning-bg'], 'border-left': `5px solid ${variables['--warning-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px' });
+
+            // 内容块样式 - ensure full styles are applied
+            applyStyles(tempDiv.querySelectorAll('.custom-block.intro'), { 'background-color': variables['--intro-bg'], 'border-left': `5px solid ${variables['--intro-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
+            applyStyles(tempDiv.querySelectorAll('.custom-block.tip'), { 'background-color': variables['--tip-bg'], 'border-left': `5px solid ${variables['--tip-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
+            applyStyles(tempDiv.querySelectorAll('.custom-block.success'), { 'background-color': variables['--success-bg'], 'border-left': `5px solid ${variables['--success-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
+            applyStyles(tempDiv.querySelectorAll('.custom-block.warning'), { 'background-color': variables['--warning-bg'], 'border-left': `5px solid ${variables['--warning-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
 
             // 其他元素
-            applyStyles(tempDiv.querySelectorAll('p'), { 'margin': '16px 0', 'color': 'inherit', 'line-height': '1.75' });
+            applyStyles(tempDiv.querySelectorAll('p'), { 'margin': '16px 0', 'color': variables['--text-color'], 'line-height': '1.75' }); // Ensure 'color' is explicitly set
             applyStyles(tempDiv.querySelectorAll('a'), { 'color': variables['--link-color'], 'text-decoration': 'none' });
-            applyStyles(tempDiv.querySelectorAll('pre'), { 'background-color': variables['--code-bg'], 'padding': '16px', 'border-radius': '5px', 'overflow-x': 'auto', 'margin': '16px 0', 'white-space':'pre-wrap', 'word-break':'break-all' });
-            applyStyles(tempDiv.querySelectorAll('blockquote'), { 'border-left': `4px solid ${variables['--quote-border']}`, 'padding-left': '16px', 'margin': '16px 0', 'color': 'inherit', 'opacity':'0.8' });
-            applyStyles(tempDiv.querySelectorAll('table'), { 'border-collapse': 'collapse', 'width': '100%', 'margin': '16px 0', 'color': 'inherit' });
-            tempDiv.querySelectorAll('th, td').forEach(cell => cell.setAttribute('style', `border: 1px solid ${variables['--table-border']}; padding: 8px 12px; text-align: left;`));
+            applyStyles(tempDiv.querySelectorAll('pre'), { 'background-color': variables['--code-bg'], 'padding': '16px', 'border-radius': '5px', 'overflow-x': 'auto', 'margin': '16px 0', 'white-space':'pre-wrap', 'word-break':'break-all', 'color': variables['--text-color'] }); // Add color for pre
+            applyStyles(tempDiv.querySelectorAll('pre code'), {'background': 'none', 'padding': '0', 'color': variables['--text-color']}); // Ensure code inside pre also has color
+            applyStyles(tempDiv.querySelectorAll('code:not(pre code)'), {'background-color': variables['--code-bg'], 'padding': '0.2em 0.4em', 'border-radius': '3px', 'font-family': 'Consolas, Monaco, monospace', 'font-size': '0.9em', 'color': variables['--text-color']}); // Inline code
+            applyStyles(tempDiv.querySelectorAll('blockquote'), { 'border-left': `4px solid ${variables['--quote-border']}`, 'padding-left': '16px', 'margin': '16px 0', 'color': variables['--text-color'], 'opacity':'0.8' }); // Explicit color
+            applyStyles(tempDiv.querySelectorAll('ul, ol'), { 'padding-left': '2em', 'margin': '16px 0', 'color': variables['--text-color'] }); // Explicit color
+            applyStyles(tempDiv.querySelectorAll('li'), { 'margin-bottom': '8px', 'color': variables['--text-color'] }); // Explicit color
+            applyStyles(tempDiv.querySelectorAll('table'), { 'border-collapse': 'collapse', 'width': '100%', 'margin': '16px 0', 'color': variables['--text-color'] }); // Explicit color
+            tempDiv.querySelectorAll('th, td').forEach(cell => cell.setAttribute('style', `border: 1px solid ${variables['--table-border']}; padding: 8px 12px; text-align: left; color:${variables['--text-color']};`)); // Explicit color for cells
             tempDiv.querySelectorAll('th').forEach(th => th.style.backgroundColor = variables['--table-header']);
-            applyStyles(tempDiv.querySelectorAll('strong'), { 'color': 'inherit', 'font-weight': 'bold' }); // Let strong inherit color from parent
+            applyStyles(tempDiv.querySelectorAll('strong'), { 'font-weight': 'bold', 'color': variables['--text-color'] }); // Ensure bolding and explicit color
             applyStyles(tempDiv.querySelectorAll('em'), { 'color': variables['--link-color'], 'font-style': 'italic' });
-            
+            applyStyles(tempDiv.querySelectorAll('img'), { 'max-width': '100%', 'border-radius': '5px', 'margin': '16px 0' }); // Ensure images are styled
+
             return tempDiv.innerHTML;
         }
 
@@ -720,10 +792,15 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
         markdownInput.addEventListener('input', renderMarkdown);
         clearBtn.addEventListener('click', () => { markdownInput.value = ''; renderMarkdown(); });
         copyBtn.addEventListener('click', copyToClipboard);
-        themeButtons.forEach(button => button.addEventListener('click', () => applyTheme(button.getAttribute('data-theme'))));
+        themeButtons.forEach(button => button.addEventListener('click', (event) => {
+            applyTheme(event.target.getAttribute('data-theme'));
+            renderMarkdown(); // 切换主题后重新渲染以应用新主题颜色到内容
+        }));
 
+        // 页面加载时应用默认主题，并确保预览内容正确渲染
         applyTheme('default');
-        
+        renderMarkdown(); // 首次加载时确保内容正确渲染并应用主题
+
         // --- 2.0 功能块 JS ---
         function getFormattedContentForWechat() {
             const tempDiv = document.createElement('div');
@@ -748,6 +825,14 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             
             const modalBody = document.createElement('div');
             modalBody.className = 'wechat-modal-body';
+            
+            // 修复12: 确保微信预览弹窗的背景和文字颜色与当前主题一致
+            const currentThemeStyles = getComputedStyle(previewOutput);
+            const bgColor = currentThemeStyles.getPropertyValue('--background-color') || '#FFFFFF';
+            const textColor = currentThemeStyles.getPropertyValue('--text-color') || '#111827';
+            modalBody.style.backgroundColor = bgColor;
+            modalBody.style.color = textColor;
+            
             modalBody.innerHTML = getFormattedContentForWechat();
 
             const modalFooter = document.createElement('div');
@@ -763,10 +848,20 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             modal.appendChild(previewContent);
             document.body.appendChild(modal);
             
-            const closeModal = () => document.body.removeChild(modal);
+            const closeModal = () => {
+                document.body.removeChild(modal);
+                document.body.style.overflow = ''; // 恢复滚动
+            };
             modal.querySelector('.wechat-modal-close').addEventListener('click', closeModal);
             modal.querySelector('#close-preview').addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            // Handle clicks outside the modal content to close it
+            modal.addEventListener('click', (e) => { 
+                if (e.target === modal) closeModal(); 
+            });
+            // Prevent scrolling on the body when modal is open
+            document.body.style.overflow = 'hidden';
+            // 动画结束时恢复滚动
+            // modal.addEventListener('animationend', () => { /* 已经在closeModal中处理 */ });
         }
 
         function checkCompatibility() {
@@ -785,31 +880,40 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             
             const browserInfo = detectBrowser();
             const clipboardSupport = checkClipboardSupport();
-            const richTextSupport = checkRichTextSupport();
-            
+            const richTextSupport = checkRichTextSupport(); // This primarily checks ClipboardItem availability
+
             let compatibilityScore = 0;
             let recommendations = [];
 
-            if (clipboardSupport.modern) compatibilityScore += 40;
-            else if (clipboardSupport.legacy) {
+            if (clipboardSupport.modern) {
+                compatibilityScore += 40;
+            } else if (clipboardSupport.legacy) {
                 compatibilityScore += 20;
-                recommendations.push('您的浏览器不支持现代剪贴板API，建议升级到最新版本的Chrome或Edge浏览器');
+                recommendations.push('您的浏览器不支持现代剪贴板API，建议升级到最新版本的Chrome或Edge浏览器以获得更稳定的复制体验。');
             } else {
-                recommendations.push('您的浏览器不支持复制功能，请使用Chrome或Edge浏览器');
+                recommendations.push('您的浏览器可能不支持复制功能。请尝试使用Chrome或Edge浏览器。');
             }
-            if (richTextSupport) compatibilityScore += 40;
-            else recommendations.push('您的浏览器可能不支持富文本复制，可能导致样式丢失');
 
+            if (richTextSupport) { // ClipboardItem support
+                compatibilityScore += 40;
+            } else {
+                recommendations.push('您的浏览器可能不支持高级富文本复制（通过ClipboardItem），部分样式在粘贴到微信公众号编辑器时可能会丢失。');
+            }
+
+            // More precise browser check for score
             if (browserInfo.name === 'Chrome' || browserInfo.name === 'Edge') {
                 compatibilityScore += 20;
+            } else if (browserInfo.name === 'Firefox' || browserInfo.name === 'Safari') {
+                compatibilityScore += 10; // Slightly lower score for other major browsers
+                recommendations.push(`您正在使用 ${browserInfo.name} ${browserInfo.version}。虽然可以使用，但微信公众号编辑器与Chrome/Edge的兼容性通常最佳。`);
             } else {
-                recommendations.push(`您正在使用 ${browserInfo.name} ${browserInfo.version}，建议使用Chrome或Edge以获得最佳体验`);
+                 recommendations.push(`您正在使用 ${browserInfo.name} ${browserInfo.version}。建议使用Chrome或Edge浏览器以获得最佳体验和完整功能。`);
             }
 
             let compatibilityRating;
-            if (compatibilityScore >= 80) compatibilityRating = '<span style="color:#4CAF50;font-weight:bold;">优秀</span>';
-            else if (compatibilityScore >= 60) compatibilityRating = '<span style="color:#FFC107;font-weight:bold;">良好</span>';
-            else if (compatibilityScore >= 40) compatibilityRating = '<span style="color:#FF9800;font-weight:bold;">一般</span>';
+            if (compatibilityScore >= 90) compatibilityRating = '<span style="color:#4CAF50;font-weight:bold;">优秀</span>';
+            else if (compatibilityScore >= 70) compatibilityRating = '<span style="color:#FFC107;font-weight:bold;">良好</span>';
+            else if (compatibilityScore >= 50) compatibilityRating = '<span style="color:#FF9800;font-weight:bold;">一般</span>';
             else compatibilityRating = '<span style="color:#F44336;font-weight:bold;">较差</span>';
 
             modalBody.innerHTML = `
@@ -823,9 +927,8 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
                     <ul>
                         <li>浏览器: ${browserInfo.name} ${browserInfo.version}</li>
                         <li>操作系统: ${browserInfo.os}</li>
-                        <li>现代剪贴板API: ${clipboardSupport.modern ? '✅ 支持' : '❌ 不支持'}</li>
-                        <li>传统复制命令: ${clipboardSupport.legacy ? '✅ 支持' : '❌ 不支持'}</li>
-                        <li>富文本支持: ${richTextSupport ? '✅ 支持' : '❌ 可能不支持'}</li>
+                        <li>现代剪贴板API (ClipboardItem): ${clipboardSupport.modern ? '✅ 支持' : '❌ 不支持'}</li>
+                        <li>传统复制命令 (execCommand): ${clipboardSupport.legacy ? '✅ 支持' : '❌ 不支持'}</li>
                     </ul>
                 </div>
                 ${recommendations.length > 0 ? `
@@ -836,8 +939,9 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
                 <div style="margin-top:20px;padding-top:15px;border-top:1px solid #eee;">
                     <h4>复制技巧</h4>
                     <ul>
-                        <li>使用键盘快捷键 <kbd>Ctrl</kbd>+<kbd>V</kbd> (Windows) 或 <kbd>⌘</kbd>+<kbd>V</kbd> (Mac) 粘贴可能会有更好的效果</li>
-                        <li>如果粘贴后样式丢失，请尝试刷新页面后重新复制</li>
+                        <li>点击“复制排版”按钮后，请直接在微信公众号编辑器中<strong>粘贴（<kbd>Ctrl</kbd>+<kbd>V</kbd> 或 <kbd>⌘</kbd>+<kbd>V</kbd>）</strong>。</li>
+                        <li>如果粘贴后样式出现异常，可能是微信编辑器或浏览器缓存问题，尝试刷新页面后重新复制。</li>
+                        <li>建议保持浏览器和操作系统为最新版本，以获得最佳兼容性。</li>
                     </ul>
                 </div>
             `;
@@ -852,15 +956,25 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             modal.appendChild(previewContent);
             document.body.appendChild(modal);
 
-            const closeModal = () => document.body.removeChild(modal);
+            const closeModal = () => {
+                document.body.removeChild(modal);
+                document.body.style.overflow = ''; // 恢复滚动
+            };
             modal.querySelector('.wechat-modal-close').addEventListener('click', closeModal);
             modal.querySelector('#close-compatibility').addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            // Handle clicks outside the modal content to close it
+            modal.addEventListener('click', (e) => { 
+                if (e.target === modal) closeModal(); 
+            });
+            // Prevent scrolling on the body when modal is open
+            document.body.style.overflow = 'hidden';
+            // modal.addEventListener('animationend', () => { /* 已经在closeModal中处理 */ });
         }
 
         function detectBrowser() {
             const ua = navigator.userAgent;
             let browser = "未知", version = "未知", os = "未知";
+
             if (/windows/i.test(ua)) os = "Windows";
             else if (/macintosh|mac os x/i.test(ua)) os = "macOS";
             else if (/linux/i.test(ua)) os = "Linux";
@@ -868,27 +982,41 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
             else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
 
             let match;
-            if ((match = ua.match(/(?:edg|edge|msie|firefox|chrome|safari)[\/: ]([\d.]+)/i))) {
-                let name = match[0].toLowerCase();
+            // Order matters here: Edge often contains "Chrome" in its UA string, so check for Edge first.
+            if ((match = ua.match(/(?:edge|edg)\/([\d.]+)/i))) {
+                browser = 'Edge';
                 version = match[1];
-                if (name.includes('edg') || name.includes('edge')) browser = 'Edge';
-                else if (name.includes('chrome')) browser = 'Chrome';
-                else if (name.includes('safari')) browser = 'Safari';
-                else if (name.includes('firefox')) browser = 'Firefox';
-                else if (name.includes('msie')) browser = 'Internet Explorer';
+            } else if ((match = ua.match(/chrome\/([\d.]+)/i))) {
+                browser = 'Chrome';
+                version = match[1];
+            } else if ((match = ua.match(/firefox\/([\d.]+)/i))) {
+                browser = 'Firefox';
+                version = match[1];
+            } else if ((match = ua.match(/(?:safari|applewebkit)\/([\d.]+)/i) && !ua.match(/chrome/i))) { // Safari also contains AppleWebKit
+                browser = 'Safari';
+                // Try to get Safari version more accurately if possible, otherwise use AppleWebKit version
+                if ((match = ua.match(/version\/([\d.]+)/i))) {
+                    version = match[1];
+                } else {
+                    version = ua.match(/applewebkit\/([\d.]+)/i)[1];
+                }
+            } else if ((match = ua.match(/msie\s([\d.]+)|trident\/.+rv:([\d.]+)/i))) { // IE
+                browser = 'Internet Explorer';
+                version = match[1] || match[2];
             }
             return { name: browser, version: version, os: os };
         }
 
         function checkClipboardSupport() {
             return {
-                modern: !!(navigator.clipboard && navigator.clipboard.write),
-                legacy: document.queryCommandSupported && document.queryCommandSupported('copy')
+                modern: !!(navigator.clipboard && navigator.clipboard.write), // Async Clipboard API
+                legacy: document.queryCommandSupported && document.queryCommandSupported('copy') // document.execCommand
             };
         }
 
         function checkRichTextSupport() {
-            return 'ClipboardItem' in window;
+            // ClipboardItem indicates support for advanced HTML copying via Async Clipboard API
+            return 'ClipboardItem' in window; 
         }
 
         previewWechatBtn.addEventListener('click', showWechatPreview);
