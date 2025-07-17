@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>微信公众号Markdown格式化工具3.3 (最终修复版)</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>微信公众号Markdown格式化工具3.8 (兼容性修复版)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         /* 颜色变量 */
@@ -20,24 +20,19 @@
             --background-color: #f8f9fa;
         }
 
-        /* 修复1: 确保html和body有高度，以便内部元素使用height: 100% */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            box-sizing: border-box; /* 包含padding在内的总高度 */
+            box-sizing: border-box;
         }
 
-        /* 全局样式 */
         body {
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            /* background-color: var(--background-color);  Initial load background should be dark theme for the tool itself */
-            background-color: #1E293B; /* 工具界面的背景色保持不变 */
+            background-color: #1E293B;
             padding: 20px;
-            /* margin: 0; 已经设置在html,body */
-            /* box-sizing: border-box; 已经设置在html,body */
-            font-size: 16px; /* Base font size */
+            font-size: 16px;
         }
 
         .container {
@@ -46,11 +41,9 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            /* 修复2: 容器高度应计算视口高度减去body的padding */
             height: calc(100vh - 40px); 
         }
 
-        /* 头部样式 */
         header {
             text-align: center;
             padding: 20px;
@@ -71,14 +64,12 @@
             margin: 0 auto;
         }
 
-        /* 主要内容样式 */
         .main-content {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            /* 修复3: flex-grow让它填充剩余空间，并确保最小高度 */
             flex-grow: 1; 
-            min-height: 400px; /* 至少保证一个可见高度 */
+            min-height: 400px;
         }
 
         .editor-container,
@@ -91,11 +82,9 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            /* 修复4: 确保子容器的高度是100% */
             height: 100%; 
         }
 
-        /* 面板头部样式 */
         .panel-header {
             padding: 15px 20px;
             background: #475569;
@@ -103,6 +92,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap; /* 允许换行 */
+            gap: 10px; /* 增加间距 */
         }
 
         .panel-title {
@@ -111,7 +102,6 @@
             color: #F9FAFB;
         }
         
-        /* 编辑器工具栏样式 */
         .editor-toolbar {
             padding: 10px 15px;
             background: #475569;
@@ -137,11 +127,11 @@
             margin-right: 5px;
         }
 
-        /* 控制器样式 */
         .controls {
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap; /* 允许换行 */
         }
 
         button {
@@ -179,7 +169,6 @@
             background: #475569;
         }
 
-        /* 面板主体样式 */
         .panel-body {
             flex: 1;
             overflow: auto;
@@ -205,12 +194,8 @@
             overflow-y: auto;
             height: 100%;
             font-size: 1rem;
-            /* 修复5: 移除这里的 background-color 和 color，由JS动态设置 */
-            /* color: var(--text-color); */
-            /* background-color: var(--background-color); */
         }
 
-        /* Toast 样式 */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -231,7 +216,6 @@
             opacity: 1;
         }
 
-        /* Theme Button Styles */
         .theme-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -265,99 +249,37 @@
         }
 
         /* --- 主题样式区 --- */
-        /* 修复6: 移除了 :root 中的主题相关变量定义，由.theme-default等直接设置 */
-        /* 保留了全局的，作为默认值，但主题特定变量直接在主题类中定义 */
-
-        /* 原始的:root 变量，用于工具界面及未明确主题时的回退 */
-        /* --text-light 变量也在这里定义一个通用回退 */
-        /* 主题类直接设置变量，不依赖:root，提高明确性 */
+        .theme-default { --header-color: #1E40AF; --link-color: #3B82F6; --code-bg: #F3F4F6; --quote-border: #D1D5DB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #111827; --intro-bg: #EBF5FF; --intro-border: #3B82F6; --tip-bg: #EBF5FF; --tip-border: #3B82F6; --success-bg: #F0FFF4; --success-border: #48BB78; --warning-bg: #FFFBEB; --warning-border: #F59E0B; --text-light: #777; }
+        .theme-green { --header-color: #047857; --link-color: #059669; --code-bg: #ECFDF5; --quote-border: #A7F3D0; --table-header: #ECFDF5; --table-border: #A7F3D0; --background-color: #FFFFFF; --text-color: #047857; --intro-bg: #ECFDF5; --intro-border: #059669; --tip-bg: #ECFDF5; --tip-border: #059669; --success-bg: #D1FAE5; --success-border: #10B981; --warning-bg: #FEF3C7; --warning-border: #D97706; --text-light: #4F8B70; }
+        .theme-purple { --header-color: #7C3AED; --link-color: #8B5CF6; --code-bg: #F5F3FF; --quote-border: #C4B5FD; --table-header: #F5F3FF; --table-border: #C4B5FD; --background-color: #FFFFFF; --text-color: #7C3AED; --intro-bg: #F5F3FF; --intro-border: #8B5CF6; --tip-bg: #F5F3FF; --tip-border: #8B5CF6; --success-bg: #F0FDFA; --success-border: #2DD4BF; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #A57CDA; }
+        .theme-github { --header-color: #24292F; --link-color: #0969DA; --code-bg: #F6F8FA; --quote-border: #D0D7DE; --table-header: #F6F8FA; --table-border: #D0D7DE; --background-color: #FFFFFF; --text-color: #24292F; --intro-bg: #F6F8FA; --intro-border: #0969DA; --tip-bg: #F6F8FA; --tip-border: #0969DA; --success-bg: #E6FFED; --success-border: #28A745; --warning-bg: #FFFBDD; --warning-border: #B08800; --text-light: #586069; }
+        .theme-retro { --header-color: #B45309; --link-color: #D97706; --code-bg: #FEF3C7; --quote-border: #FCD34D; --table-header: #FEF3C7; --table-border: #FCD34D; --background-color: #FFFBEB; --text-color: #92400E; --intro-bg: #FEF3C7; --intro-border: #D97706; --tip-bg: #FEF3C7; --tip-border: #D97706; --success-bg: #F7FEE7; --success-border: #65A30D; --warning-bg: #FFF7ED; --warning-border: #FB923C; --text-light: #D97706; }
+        .theme-sakura { --header-color: #BE185D; --link-color: #EC4899; --code-bg: #FDF2F8; --quote-border: #F9A8D4; --table-header: #FDF2F8; --table-border: #F9A8D4; --background-color: #FFFFFF; --text-color: #BE185D; --intro-bg: #FDF2F8; --intro-border: #EC4899; --tip-bg: #FDF2F8; --tip-border: #EC4899; --success-bg: #F0FDFA; --success-border: #14B8A6; --warning-bg: #FFFBEB; --warning-border: #F59E0B; --text-light: #F7B5D6; }
+        .theme-gold { --header-color: #A16207; --link-color: #CA8A04; --code-bg: #FEF9C3; --quote-border: #FDE047; --table-header: #FEF9C3; --table-border: #FDE047; --background-color: #FFFEF2; --text-color: #A16207; --intro-bg: #FEF9C3; --intro-border: #CA8A04; --tip-bg: #FEF9C3; --tip-border: #CA8A04; --success-bg: #F7FEE7; --success-border: #84CC16; --warning-bg: #FFF7ED; --warning-border: #F97316; --text-light: #B88A00; }
+        .theme-mint { --header-color: #059669; --link-color: #10B981; --code-bg: #ECFCCB; --quote-border: #BEF264; --table-header: #ECFCCB; --table-border: #BEF264; --background-color: #F7FEE7; --text-color: #059669; --intro-bg: #F0FDF4; --intro-border: #10B981; --tip-bg: #F0FDF4; --tip-border: #10B981; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #6EE7B7; }
+        .theme-cyberpunk { --header-color: #06FFA5; --link-color: #00D9FF; --code-bg: #0F0F23; --quote-border: #FF006E; --table-header: #0F0F23; --table-border: #FF006E; --background-color: #0A0A0A; --text-color: #06FFA5; --intro-bg: #0F0F23; --intro-border: #00D9FF; --tip-bg: #0F0F23; --tip-border: #00D9FF; --success-bg: #0F231A; --success-border: #06FFA5; --warning-bg: #230F1A; --warning-border: #FF006E; --text-light: #00FFFF; }
+        .theme-dark { --header-color: #F9FAFB; --link-color: #60A5FA; --code-bg: #374151; --quote-border: #6B7280; --table-header: #374151; --table-border: #6B7280; --background-color: #111827; --text-color: #F9FAFB; --intro-bg: #1F2937; --intro-border: #60A5FA; --tip-bg: #1F2937; --tip-border: #60A5FA; --success-bg: #163324; --success-border: #34D399; --warning-bg: #332517; --warning-border: #FBBF24; --text-light: #9CA3AF; }
+        .theme-ocean { --header-color: #0369A1; --link-color: #0284C7; --code-bg: #E0F2FE; --quote-border: #7DD3FC; --table-header: #E0F2FE; --table-border: #7DD3FC; --background-color: #F0F9FF; --text-color: #0369A1; --intro-bg: #E0F2FE; --intro-border: #0284C7; --tip-bg: #E0F2FE; --tip-border: #0284C7; --success-bg: #EFF6FF; --success-border: #3B82F6; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #60A5FA; }
+        .theme-forest { --header-color: #166534; --link-color: #16A34A; --code-bg: #F0FDF4; --quote-border: #86EFAC; --table-header: #F0FDF4; --table-border: #86EFAC; --background-color: #F7FEE7; --text-color: #166534; --intro-bg: #DCFCE7; --intro-border: #16A34A; --tip-bg: #DCFCE7; --tip-border: #16A34A; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEF3C7; --warning-border: #D97706; --text-light: #4ADE80; }
+        .theme-minimal { --header-color: #374151; --link-color: #6B7280; --code-bg: #F9FAFB; --quote-border: #E5E7EB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #374151; --intro-bg: #F9FAFB; --intro-border: #6B7280; --tip-bg: #F9FAFB; --tip-border: #6B7280; --success-bg: #F0FDF4; --success-border: #16A34A; --warning-bg: #FEFCE8; --warning-border: #D97706; --text-light: #888; }
+        .theme-serene-gray { --header-color: #111827; --link-color: #3b82f6; --code-bg: #f3f4f6; --quote-border: #6b7280; --table-header: #f9fafb; --table-border: #e5e7eb; --background-color: #ffffff; --text-color: #374151; --intro-bg: #f3f4f6; --intro-border: #d1d5db; --tip-bg: #eef2f9; --tip-border: #60a5fa; --success-bg: #f0fdf4; --success-border: #22c55e; --warning-bg: #fffbeb; --warning-border: #f59e0b; --text-light: #6b7280; }
+        .theme-warm-wood { --header-color: #854d0e; --link-color: #c2410c; --code-bg: #fefce8; --quote-border: #facc15; --table-header: #fefce8; --table-border: #f3eade; --background-color: #fdfbf8; --text-color: #78350f; --intro-bg: #fefce8; --intro-border: #facc15; --tip-bg: #fef9c3; --tip-border: #ca8a04; --success-bg: #f7fee7; --success-border: #65a30d; --warning-bg: #fff7ed; --warning-border: #fb923c; --text-light: #a16207; }
+        .theme-neumorphism { --header-color: #3b82f6; --link-color: #2563eb; --code-bg: #dbeafe; --quote-border: #bfdbfe; --table-header: #dbeafe; --table-border: #bfdbfe; --background-color: #eef2f9; --text-color: #475569; --intro-bg: #dbeafe; --intro-border: #93c5fd; --tip-bg: #e0e7ff; --tip-border: #818cf8; --success-bg: #dcfce7; --success-border: #4ade80; --warning-bg: #fef3c7; --warning-border: #facc15; --text-light: #64748b; }
         
-        .theme-default {
-            --header-color: #1E40AF; --link-color: #3B82F6; --code-bg: #F3F4F6; --quote-border: #D1D5DB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #111827;
-            --intro-bg: #EBF5FF; --intro-border: #3B82F6; --tip-bg: #EBF5FF; --tip-border: #3B82F6; --success-bg: #F0FFF4; --success-border: #48BB78; --warning-bg: #FFFBEB; --warning-border: #F59E0B;
-            --text-light: #777; /* 显式为每个主题定义 text-light */
-        }
-        .theme-green {
-            --header-color: #047857; --link-color: #059669; --code-bg: #ECFDF5; --quote-border: #A7F3D0; --table-header: #ECFDF5; --table-border: #A7F3D0; --background-color: #FFFFFF; --text-color: #047857;
-            --intro-bg: #ECFDF5; --intro-border: #059669; --tip-bg: #ECFDF5; --tip-border: #059669; --success-bg: #D1FAE5; --success-border: #10B981; --warning-bg: #FEF3C7; --warning-border: #D97706;
-            --text-light: #4F8B70;
-        }
-        .theme-purple {
-            --header-color: #7C3AED; --link-color: #8B5CF6; --code-bg: #F5F3FF; --quote-border: #C4B5FD; --table-header: #F5F3FF; --table-border: #C4B5FD; --background-color: #FFFFFF; --text-color: #7C3AED;
-            --intro-bg: #F5F3FF; --intro-border: #8B5CF6; --tip-bg: #F5F3FF; --tip-border: #8B5CF6; --success-bg: #F0FDFA; --success-border: #2DD4BF; --warning-bg: #FEFCE8; --warning-border: #EAB308;
-            --text-light: #A57CDA;
-        }
-        .theme-github {
-            --header-color: #24292F; --link-color: #0969DA; --code-bg: #F6F8FA; --quote-border: #D0D7DE; --table-header: #F6F8FA; --table-border: #D0D7DE; --background-color: #FFFFFF; --text-color: #24292F;
-            --intro-bg: #F6F8FA; --intro-border: #0969DA; --tip-bg: #F6F8FA; --tip-border: #0969DA; --success-bg: #E6FFED; --success-border: #28A745; --warning-bg: #FFFBDD; --warning-border: #B08800;
-            --text-light: #586069;
-        }
-        .theme-retro {
-            --header-color: #B45309; --link-color: #D97706; --code-bg: #FEF3C7; --quote-border: #FCD34D; --table-header: #FEF3C7; --table-border: #FCD34D; --background-color: #FFFBEB; --text-color: #92400E;
-            --intro-bg: #FEF3C7; --intro-border: #D97706; --tip-bg: #FEF3C7; --tip-border: #D97706; --success-bg: #F7FEE7; --success-border: #65A30D; --warning-bg: #FFF7ED; --warning-border: #FB923C;
-            --text-light: #D97706;
-        }
-        .theme-sakura {
-            --header-color: #BE185D; --link-color: #EC4899; --code-bg: #FDF2F8; --quote-border: #F9A8D4; --table-header: #FDF2F8; --table-border: #F9A8D4; --background-color: #FFFFFF; --text-color: #BE185D;
-            --intro-bg: #FDF2F8; --intro-border: #EC4899; --tip-bg: #FDF2F8; --tip-border: #EC4899; --success-bg: #F0FDFA; --success-border: #14B8A6; --warning-bg: #FFFBEB; --warning-border: #F59E0B;
-            --text-light: #F7B5D6;
-        }
-        .theme-gold {
-            --header-color: #A16207; --link-color: #CA8A04; --code-bg: #FEF9C3; --quote-border: #FDE047; --table-header: #FEF9C3; --table-border: #FDE047; --background-color: #FFFEF2; --text-color: #A16207;
-            --intro-bg: #FEF9C3; --intro-border: #CA8A04; --tip-bg: #FEF9C3; --tip-border: #CA8A04; --success-bg: #F7FEE7; --success-border: #84CC16; --warning-bg: #FFF7ED; --warning-border: #F97316;
-            --text-light: #B88A00;
-        }
-        .theme-mint {
-            --header-color: #059669; --link-color: #10B981; --code-bg: #ECFCCB; --quote-border: #BEF264; --table-header: #ECFCCB; --table-border: #BEF264; --background-color: #F7FEE7; --text-color: #059669;
-            --intro-bg: #F0FDF4; --intro-border: #10B981; --tip-bg: #F0FDF4; --tip-border: #10B981; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEFCE8; --warning-border: #EAB308;
-            --text-light: #6EE7B7;
-        }
-        .theme-cyberpunk {
-            --header-color: #06FFA5; --link-color: #00D9FF; --code-bg: #0F0F23; --quote-border: #FF006E; --table-header: #0F0F23; --table-border: #FF006E; --background-color: #0A0A0A; --text-color: #06FFA5;
-            --intro-bg: #0F0F23; --intro-border: #00D9FF; --tip-bg: #0F0F23; --tip-border: #00D9FF; --success-bg: #0F231A; --success-border: #06FFA5; --warning-bg: #230F1A; --warning-border: #FF006E;
-            --text-light: #00FFFF;
-        }
-        .theme-dark {
-            --header-color: #F9FAFB; --link-color: #60A5FA; --code-bg: #374151; --quote-border: #6B7280; --table-header: #374151; --table-border: #6B7280; --background-color: #111827; --text-color: #F9FAFB;
-            --intro-bg: #1F2937; --intro-border: #60A5FA; --tip-bg: #1F2937; --tip-border: #60A5FA; --success-bg: #163324; --success-border: #34D399; --warning-bg: #332517; --warning-border: #FBBF24;
-            --text-light: #9CA3AF;
-        }
-        .theme-ocean {
-            --header-color: #0369A1; --link-color: #0284C7; --code-bg: #E0F2FE; --quote-border: #7DD3FC; --table-header: #E0F2FE; --table-border: #7DD3FC; --background-color: #F0F9FF; --text-color: #0369A1;
-            --intro-bg: #E0F2FE; --intro-border: #0284C7; --tip-bg: #E0F2FE; --tip-border: #0284C7; --success-bg: #EFF6FF; --success-border: #3B82F6; --warning-bg: #FEFCE8; --warning-border: #EAB308;
-            --text-light: #60A5FA;
-        }
-        .theme-forest {
-            --header-color: #166534; --link-color: #16A34A; --code-bg: #F0FDF4; --quote-border: #86EFAC; --table-header: #F0FDF4; --table-border: #86EFAC; --background-color: #F7FEE7; --text-color: #166534;
-            --intro-bg: #DCFCE7; --intro-border: #16A34A; --tip-bg: #DCFCE7; --tip-border: #16A34A; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEF3C7; --warning-border: #D97706;
-            --text-light: #4ADE80;
-        }
-        .theme-minimal {
-            --header-color: #374151; --link-color: #6B7280; --code-bg: #F9FAFB; --quote-border: #E5E7EB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #374151;
-            --intro-bg: #F9FAFB; --intro-border: #6B7280; --tip-bg: #F9FAFB; --tip-border: #6B7280; --success-bg: #F0FDF4; --success-border: #16A34A; --warning-bg: #FEFCE8; --warning-border: #D97706;
-            --text-light: #888;
-        }
+        /* --- 2025-07-17 新增主题 --- */
+        .theme-ink-wash { --header-color: #1a1a1a; --link-color: #c82f2f; --code-bg: #f5f5f5; --quote-border: #cccccc; --table-header: #f5f5f5; --table-border: #e0e0e0; --background-color: #fcfcfc; --text-color: #2c2c2c; --intro-bg: #f5f5f5; --intro-border: #cccccc; --tip-bg: #f5f5f5; --tip-border: #cccccc; --success-bg: #f0f9f0; --success-border: #a0cda0; --warning-bg: #f9f0f0; --warning-border: #c82f2f; --text-light: #666666; }
+        .theme-blueprint { --header-color: #77cbf9; --link-color: #ffd60a; --code-bg: #1b263b; --quote-border: #77cbf9; --table-header: #1b263b; --table-border: #4a6a8a; --background-color: #0d1b2a; --text-color: #e0e1dd; --intro-bg: #1b263b; --intro-border: #77cbf9; --tip-bg: #1b263b; --tip-border: #77cbf9; --success-bg: #1a3b3d; --success-border: #2ec4b6; --warning-bg: #3b3d2b; --warning-border: #ffd60a; --text-light: #a9d6e5; }
+        .theme-papyrus { --header-color: #4a3f2d; --link-color: #a52a2a; --code-bg: #f5efdb; --quote-border: #d3c0a5; --table-header: #f5efdb; --table-border: #d3c0a5; --background-color: #fdf6e3; --text-color: #584c2c; --intro-bg: #f5efdb; --intro-border: #d3c0a5; --tip-bg: #f5efdb; --tip-border: #d3c0a5; --success-bg: #e8f5e9; --success-border: #81c784; --warning-bg: #fff3e0; --warning-border: #ffb74d; --text-light: #8d6e63; }
 
-        /* 预览内容样式 - 移除背景和颜色设置，将在JS中动态应用 */
-        #preview-output {
-            padding: 20px;
-            overflow-y: auto;
-            height: 100%;
-            font-size: 1rem;
-            /* background-color 和 color 将由 JS 动态设置 */
-        }
 
-        /* --- 标题字号优化 (v3.1) --- */
-        #preview-output h1, #preview-output h2, #preview-output h3, #preview-output h4, #preview-output h5, #preview-output h6 {
-            color: var(--header-color); margin-top: 24px; margin-bottom: 16px; font-weight: bold; line-height: 1.4;
-        }
-        #preview-output h1 { font-size: 1.875rem; border-bottom: 2px solid var(--header-color); padding-bottom: 0.4em; } /* 30px */
-        #preview-output h2 { font-size: 1.5rem; border-bottom: 1px solid var(--header-color); padding-bottom: 0.3em; }    /* 24px */
-        #preview-output h3 { font-size: 1.25rem; }   /* 20px */
-        #preview-output h4 { font-size: 1.125rem; }  /* 18px */
-        #preview-output h5 { font-size: 1rem; }      /* 16px */
-        #preview-output h6 { font-size: 0.875rem; color: var(--text-light, #777); } /* 14px */
-        
+        #preview-output { padding: 20px; overflow-y: auto; height: 100%; font-size: 1rem; }
+        #preview-output h1, #preview-output h2, #preview-output h3, #preview-output h4, #preview-output h5, #preview-output h6 { color: var(--header-color); margin-top: 24px; margin-bottom: 16px; font-weight: bold; line-height: 1.4; }
+        #preview-output h1 { font-size: 1.875rem; border-bottom: 2px solid var(--header-color); padding-bottom: 0.4em; }
+        #preview-output h2 { font-size: 1.5rem; border-bottom: 1px solid var(--header-color); padding-bottom: 0.3em; }
+        #preview-output h3 { font-size: 1.25rem; }
+        #preview-output h4 { font-size: 1.125rem; }
+        #preview-output h5 { font-size: 1rem; }
+        #preview-output h6 { font-size: 0.875rem; color: var(--text-light, #777); }
         #preview-output p { margin: 16px 0; color: var(--text-color); }
         #preview-output a { color: var(--link-color); text-decoration: none; }
         #preview-output a:hover { text-decoration: underline; }
@@ -374,24 +296,19 @@
         #preview-output strong { color: var(--header-color); font-weight: bold; }
         #preview-output em { color: var(--link-color); font-style: italic; }
 
-        /* 内容块通用样式 */
-        .custom-block {
-            padding: 16px; margin: 16px 0; border-left-width: 5px; border-left-style: solid; border-radius: 8px;
-        }
+        .custom-block { padding: 16px; margin: 16px 0; border-left-width: 5px; border-left-style: solid; border-radius: 8px; }
         .custom-block p:first-child { margin-top: 0; }
         .custom-block p:last-child { margin-bottom: 0; }
-        
         .custom-block.intro { background-color: var(--intro-bg); border-left-color: var(--intro-border); }
         .custom-block.tip { background-color: var(--tip-bg); border-left-color: var(--tip-border); }
         .custom-block.success { background-color: var(--success-bg); border-left-color: var(--success-border); }
         .custom-block.warning { background-color: var(--warning-bg); border-left-color: var(--warning-border); }
 
-        /* 响应式布局 */
         @media (max-width: 768px) {
-            .container { padding: 10px; height: auto; } /* 响应式调整高度 */
+            .container { padding: 10px; height: auto; }
             h1 { font-size: 2rem; }
             .subtitle { font-size: 1rem; }
-            .main-content { flex-direction: column; height: auto; min-height: unset; } /* 移除固定高度 */
+            .main-content { flex-direction: column; height: auto; min-height: unset; }
             .editor-container, .preview-container { height: 50vh; }
             .panel-header { padding: 10px; flex-direction: column; gap: 10px; }
             .controls { width: 100%; justify-content: center; }
@@ -399,7 +316,6 @@
             .theme-button { padding: 6px 12px; min-width: 60px; font-size: 0.9rem; }
         }
 
-        /* 复制成功提示样式 */
         .copy-success-tip { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(47, 129, 247, 0.95); color: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); z-index: 2000; display: flex; flex-direction: column; align-items: center; gap: 15px; animation: fadeInOut 3s ease-in-out; }
         .success-icon { font-size: 46px; color: #FFFFFF; }
         .success-text { text-align: center; }
@@ -407,7 +323,6 @@
         .success-text p { margin: 5px 0; opacity: 0.9; font-size: 16px; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -60%); } 20% { opacity: 1; transform: translate(-50%, -50%); } 80% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, -50%); } }
         
-        /* --- 2.0 功能块样式 --- */
         .wechat-preview-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 3000; display: flex; align-items: center; justify-content: center; }
         .wechat-preview-content { background-color: #f5f5f5; border-radius: 8px; width: 90%; max-width: 900px; max-height: 90vh; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; }
         .wechat-modal-header { background-color: #07C160; color: #fff; padding: 15px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
@@ -425,7 +340,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>微信公众号 Markdown 格式化工具 3.3 (最终修复版)</h1>
+            <h1>微信公众号 Markdown 格式化工具 3.7 (终极版)</h1>
             <p class="subtitle">将 Markdown 转换为微信公众号兼容的精美排版，支持多种主题和内容块，一键复制到公众号编辑器</p>
         </header>
 
@@ -469,6 +384,13 @@
                             <button class="theme-button" data-theme="ocean">海洋</button>
                             <button class="theme-button" data-theme="forest">森林</button>
                             <button class="theme-button" data-theme="minimal">极简</button>
+                            <button class="theme-button" data-theme="serene-gray">静谧灰</button>
+                            <button class="theme-button" data-theme="warm-wood">暖木棕</button>
+                            <button class="theme-button" data-theme="neumorphism">新拟态</button>
+                            <!-- 2025-07-17 新增主题按钮 -->
+                            <button class="theme-button" data-theme="ink-wash">水墨风</button>
+                            <button class="theme-button" data-theme="blueprint">蓝图风</button>
+                            <button class="theme-button" data-theme="papyrus">羊皮纸</button>
                         </div>
                         <button id="check-compatibility-btn" class="btn-secondary">
                             <i class="fas fa-check-circle"></i>
@@ -494,20 +416,19 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        const markdownInput = document.getElementById('markdown-input');
-        const previewOutput = document.getElementById('preview-output');
-        const themeButtons = document.querySelectorAll('.theme-button');
-        const clearBtn = document.getElementById('clear-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const toast = document.getElementById('toast');
-        const editorToolbar = document.querySelector('.editor-toolbar');
-        
-        // --- 新增按钮引用 ---
-        const previewWechatBtn = document.getElementById('preview-wechat-btn');
-        const checkCompatibilityBtn = document.getElementById('check-compatibility-btn');
+        document.addEventListener('DOMContentLoaded', () => {
+            const markdownInput = document.getElementById('markdown-input');
+            const previewOutput = document.getElementById('preview-output');
+            const themeButtons = document.querySelectorAll('.theme-button');
+            const clearBtn = document.getElementById('clear-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const toast = document.getElementById('toast');
+            const editorToolbar = document.querySelector('.editor-toolbar');
+            
+            const previewWechatBtn = document.getElementById('preview-wechat-btn');
+            const checkCompatibilityBtn = document.getElementById('check-compatibility-btn');
 
-
-        const sampleContent = `# 文章主标题 (H1)
+            const sampleContent = `# 文章主标题 (H1)
 >! 这里是 **引言** 模块，用于概括文章核心内容，吸引读者继续阅读。
 
 ## 核心章节标题 (H2)
@@ -515,15 +436,6 @@
 
 ### 小节标题 (H3)
 当一个章节内容较多时，可以使用H3标题来划分不同的段落，使文章结构更加清晰。
-
-#### 层次四标题 (H4)
-对于更细分的层级，H4标题是一个很好的选择，它仅比正文稍大，起到温和的强调作用。
-
-##### 层次五标题 (H5)
-H5标题与正文大小相同，但通过加粗来区分。适合用于列表前的引题或注释。
-
-###### 层次六标题 (H6)
-H6是最小的标题，甚至比正文还小，非常适合用于图片下的注释、引用来源说明等场景。
 
 >? **提示模块**
 > 使用 \`>?\` 语法，分享一些小技巧或补充信息。
@@ -533,495 +445,372 @@ H6是最小的标题，甚至比正文还小，非常适合用于图片下的注
 
 >x **警告模块**
 > 使用 \`>x\` 语法，强调需要特别注意的地方。
+
+\`\`\`javascript
+// 这是一个代码块示例
+function greet(name) {
+    console.log('Hello, ' + name + '!');
+}
+greet('World');
+\`\`\`
 `;
 
-        markdownInput.value = sampleContent;
-        renderMarkdown();
+            markdownInput.value = sampleContent;
 
-        function renderMarkdown() {
-            const markdownText = markdownInput.value;
-            marked.setOptions({ headerIds: false, gfm: true, breaks: true, sanitize: false });
-            
-            let html = marked.parse(markdownText);
-            
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
+            function renderMarkdown() {
+                const markdownText = markdownInput.value;
+                marked.setOptions({ headerIds: false, gfm: true, breaks: true, sanitize: false });
+                
+                let html = marked.parse(markdownText);
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
 
-            doc.querySelectorAll('blockquote').forEach(quote => {
-                const firstP = quote.querySelector('p');
-                if (!firstP) return;
+                doc.querySelectorAll('blockquote').forEach(quote => {
+                    const firstP = quote.querySelector('p');
+                    if (!firstP) return;
 
-                let content = firstP.innerHTML.trim();
-                let blockType = null, marker = '';
+                    let content = firstP.innerHTML.trim();
+                    let blockType = null, marker = '';
 
-                if (content.startsWith('!')) { blockType = 'intro'; marker = '!'; }
-                else if (content.startsWith('?')) { blockType = 'tip'; marker = '?'; }
-                else if (content.startsWith('√')) { blockType = 'success'; marker = '√'; }
-                else if (content.startsWith('x')) { blockType = 'warning'; marker = 'x'; }
+                    if (content.startsWith('!')) { blockType = 'intro'; marker = '!'; }
+                    else if (content.startsWith('?')) { blockType = 'tip'; marker = '?'; }
+                    else if (content.startsWith('√')) { blockType = 'success'; marker = '√'; }
+                    else if (content.startsWith('x')) { blockType = 'warning'; marker = 'x'; }
 
-                if (blockType) {
-                    firstP.innerHTML = content.substring(marker.length).trim();
-                    const section = doc.createElement('section');
-                    section.className = `custom-block ${blockType}`;
-                    section.innerHTML = quote.innerHTML;
-                    quote.parentNode.replaceChild(section, quote);
-                }
-            });
-            previewOutput.innerHTML = doc.body.innerHTML;
-            // 修复7: 重新渲染内容后，重新应用当前主题的颜色到 previewOutput
-            applyTheme(document.querySelector('.theme-button.selected')?.dataset.theme || 'default');
-        }
+                    if (blockType) {
+                        firstP.innerHTML = content.substring(marker.length).trim();
+                        const section = doc.createElement('section');
+                        section.className = `custom-block ${blockType}`;
+                        section.innerHTML = quote.innerHTML;
+                        quote.parentNode.replaceChild(section, quote);
+                    }
+                });
+                previewOutput.innerHTML = doc.body.innerHTML;
+                applyTheme(document.querySelector('.theme-button.selected')?.dataset.theme || 'default');
+            }
 
-        function applyTheme(theme) {
-            // 移除旧主题类并添加新主题类
-            previewOutput.className = 'theme-' + theme; // 应用主题类
-            
-            themeButtons.forEach(btn => btn.classList.remove('selected'));
-            const targetButton = document.querySelector(`.theme-button[data-theme="${theme}"]`);
-            if (targetButton) targetButton.classList.add('selected');
+            function applyTheme(theme) {
+                previewOutput.className = 'theme-' + theme;
+                
+                document.querySelectorAll('.theme-button').forEach(btn => btn.classList.remove('selected'));
+                const targetButton = document.querySelector(`.theme-button[data-theme="${theme}"]`);
+                if (targetButton) targetButton.classList.add('selected');
 
-            // 修复8: 获取当前主题的CSS变量值并直接应用到 #preview-output 的style上
-            const tempDiv = document.createElement('div');
-            tempDiv.className = 'theme-' + theme; // 应用主题类以获取计算后的变量值
-            document.body.appendChild(tempDiv); // 必须添加到DOM才能正确计算样式
-            const computedStyle = getComputedStyle(tempDiv);
-            
-            previewOutput.style.backgroundColor = computedStyle.getPropertyValue('--background-color');
-            previewOutput.style.color = computedStyle.getPropertyValue('--text-color');
-            
-            document.body.removeChild(tempDiv); // 清理临时元素
-        }
+                const tempDiv = document.createElement('div');
+                tempDiv.className = 'theme-' + theme;
+                document.body.appendChild(tempDiv);
+                const computedStyle = getComputedStyle(tempDiv);
+                
+                previewOutput.style.backgroundColor = computedStyle.getPropertyValue('--background-color');
+                previewOutput.style.color = computedStyle.getPropertyValue('--text-color');
+                
+                document.body.removeChild(tempDiv);
+            }
 
-        // --- 浏览器兼容性强化的复制功能 ---
-        function copyToClipboard() {
-            const formattedContent = prepareContentForCopy();
-
-            // 优先使用现代异步剪贴板API。这是Chrome/Edge等现代浏览器的首选。
-            if (navigator.clipboard && typeof navigator.clipboard.write === 'function' && typeof ClipboardItem !== 'undefined') {
-                try {
-                    const htmlBlob = new Blob([formattedContent], { type: 'text/html' });
-                    // Explicitly add 'text/plain' for better compatibility with some applications
-                    const textBlob = new Blob([markdownInput.value], { type: 'text/plain' }); 
-                    const clipboardItem = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
-
-                    navigator.clipboard.write([clipboardItem]).then(() => {
-                        showCopySuccessMessage();
-                    }).catch(err => {
-                        console.error('现代剪贴板API失败，尝试旧版方法。错误:', err);
-                        // 如果现代API失败（例如，由于安全限制），则回退到旧方法。
-                        legacyCopyToClipboard(formattedContent);
-                    });
-                } catch (e) {
-                     console.error('创建 ClipboardItem 时出错，尝试旧版方法。错误:', e);
-                     legacyCopyToClipboard(formattedContent);
-                }
-            } else {
-                // 为旧版浏览器或不安全环境（如 file://）提供后备方案。
-                console.warn('现代剪贴板API不可用，回退到旧版方法。');
+            function copyToClipboard() {
+                const formattedContent = prepareContentForCopy();
                 legacyCopyToClipboard(formattedContent);
             }
-        }
 
-        function legacyCopyToClipboard(html) {
-            const tempEl = document.createElement('div');
-            // 将元素移出可视区域
-            tempEl.style.position = 'absolute';
-            tempEl.style.left = '-9999px';
-            tempEl.style.top = '0';
-            // 必须将元素添加到DOM中才能选中其内容
-            document.body.appendChild(tempEl);
-            tempEl.innerHTML = html;
+            function legacyCopyToClipboard(html) {
+                const tempEl = document.createElement('div');
+                tempEl.style.position = 'absolute';
+                tempEl.style.left = '-9999px';
+                tempEl.style.top = '0';
+                document.body.appendChild(tempEl);
+                tempEl.innerHTML = html;
 
-            try {
-                const range = document.createRange();
-                const selection = window.getSelection();
-                range.selectNodeContents(tempEl);
-                selection.removeAllRanges();
-                selection.addRange(range);
+                try {
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+                    range.selectNodeContents(tempEl);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
 
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showCopySuccessMessage();
-                } else {
-                    showToast('复制失败，您的浏览器可能不支持此操作');
-                }
-            } catch (err) {
-                console.error('旧版复制方法失败:', err);
-                showToast('复制失败，发生未知错误');
-            } finally {
-                // 清理临时元素
-                document.body.removeChild(tempEl);
-            }
-        }
-        
-        function prepareContentForCopy() {
-            const tempPreview = document.createElement('div');
-            // Apply the current theme's class to the temporary element to get computed styles
-            tempPreview.className = previewOutput.className; 
-            document.body.appendChild(tempPreview);
-            const themeStyles = getComputedStyle(tempPreview);
-
-            // 修复9: 确保所有的变量都被正确获取，包括text-light
-            const variables = {
-                '--background-color': '#FFFFFF', '--text-color': '#111827',
-                '--header-color': '#1E40AF', '--link-color': '#3B82F6',
-                '--code-bg': '#F3F4F6', '--quote-border': '#D1D5DB',
-                '--table-header': '#F9FAFB', '--table-border': '#E5E7EB',
-                '--intro-bg': '#EBF5FF', '--intro-border': '#3B82F6',
-                '--tip-bg': '#EBF5FF', '--tip-border': '#3B82F6',
-                '--success-bg': '#F0FFF4', '--success-border': '#48BB78',
-                '--warning-bg': '#FFFBEB', '--warning-border': '#F59E0B',
-                '--text-light': '#777' // 显式包含
-            };
-
-            // Retrieve actual computed styles from the applied theme
-            for (const key in variables) {
-                // Use getPropertyValue for custom properties, fallback to default if not set
-                variables[key] = themeStyles.getPropertyValue(key).trim() || variables[key];
-            }
-            
-            document.body.removeChild(tempPreview); // Clean up temp element
-
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = previewOutput.innerHTML; // Get the currently rendered HTML
-
-            const applyStyles = (elements, styleMap) => {
-                elements.forEach(el => {
-                    let styleString = '';
-                    for (const prop in styleMap) {
-                        styleString += `${prop}: ${styleMap[prop]}; `;
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showCopySuccessMessage();
+                    } else {
+                        showToast('复制失败，您的浏览器可能不支持此操作');
                     }
-                    el.setAttribute('style', styleString.trim()); // Trim to avoid trailing semicolon issues
+                } catch (err) {
+                    console.error('旧版复制方法失败:', err);
+                    showToast('复制失败，发生未知错误');
+                } finally {
+                    document.body.removeChild(tempEl);
+                }
+            }
+            
+            function prepareContentForCopy() {
+                const tempPreview = document.createElement('div');
+                tempPreview.className = previewOutput.className; 
+                document.body.appendChild(tempPreview);
+                const themeStyles = getComputedStyle(tempPreview);
+
+                const variables = {
+                    '--background-color': '#FFFFFF', '--text-color': '#111827',
+                    '--header-color': '#1E40AF', '--link-color': '#3B82F6',
+                    '--code-bg': '#F3F4F6', '--quote-border': '#D1D5DB',
+                    '--table-header': '#F9FAFB', '--table-border': '#E5E7EB',
+                    '--intro-bg': '#EBF5FF', '--intro-border': '#3B82F6',
+                    '--tip-bg': '#EBF5FF', '--tip-border': '#3B82F6',
+                    '--success-bg': '#F0FFF4', '--success-border': '#48BB78',
+                    '--warning-bg': '#FFFBEB', '--warning-border': '#F59E0B',
+                    '--text-light': '#777'
+                };
+
+                for (const key in variables) {
+                    variables[key] = themeStyles.getPropertyValue(key).trim() || variables[key];
+                }
+                
+                document.body.removeChild(tempPreview);
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = previewOutput.innerHTML;
+                
+                const finalHtml = `<section style="background-color:${variables['--background-color']}; color:${variables['--text-color']}; font-family:-apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; line-height:1.75; padding:20px 15px; font-size: 16px;">${tempDiv.innerHTML}</section>`;
+                tempDiv.innerHTML = finalHtml;
+
+                const applyStyles = (elements, styleMap) => {
+                    elements.forEach(el => {
+                        let styleString = '';
+                        for (const prop in styleMap) {
+                            styleString += `${prop.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${styleMap[prop]}; `;
+                        }
+                        el.setAttribute('style', styleString.trim());
+                    });
+                };
+                
+                const baseHeaderStyle = `color:${variables['--header-color']}; margin: 24px 0 16px 0; font-weight: bold; line-height: 1.4;`;
+                applyStyles(tempDiv.querySelectorAll('h1'), { ...cssToJs(baseHeaderStyle), 'font-size': '30px', 'border-bottom': `2px solid ${variables['--header-color']}`, 'padding-bottom': '0.4em' });
+                applyStyles(tempDiv.querySelectorAll('h2'), { ...cssToJs(baseHeaderStyle), 'font-size': '24px', 'border-bottom': `1px solid ${variables['--header-color']}`, 'padding-bottom': '0.3em' });
+                applyStyles(tempDiv.querySelectorAll('h3'), { ...cssToJs(baseHeaderStyle), 'font-size': '20px' });
+                applyStyles(tempDiv.querySelectorAll('h4'), { ...cssToJs(baseHeaderStyle), 'font-size': '18px' });
+                applyStyles(tempDiv.querySelectorAll('h5'), { ...cssToJs(baseHeaderStyle), 'font-size': '16px' });
+                applyStyles(tempDiv.querySelectorAll('h6'), { ...cssToJs(baseHeaderStyle), 'font-size': '14px', 'color': variables['--text-light'] });
+                
+                tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
+                    if (!heading.firstElementChild || heading.firstElementChild.tagName !== 'STRONG') {
+                        heading.innerHTML = `<strong style="font-weight: bold;">${heading.innerHTML}</strong>`;
+                    } else {
+                        heading.firstElementChild.style.fontWeight = 'bold';
+                    }
                 });
-            };
+
+                applyStyles(tempDiv.querySelectorAll('.custom-block.intro'), { 'background-color': variables['--intro-bg'], 'border-left': `5px solid ${variables['--intro-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] });
+                applyStyles(tempDiv.querySelectorAll('.custom-block.tip'), { 'background-color': variables['--tip-bg'], 'border-left': `5px solid ${variables['--tip-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] });
+                applyStyles(tempDiv.querySelectorAll('.custom-block.success'), { 'background-color': variables['--success-bg'], 'border-left': `5px solid ${variables['--success-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] });
+                applyStyles(tempDiv.querySelectorAll('.custom-block.warning'), { 'background-color': variables['--warning-bg'], 'border-left': `5px solid ${variables['--warning-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] });
+
+                applyStyles(tempDiv.querySelectorAll('p'), { 'margin': '16px 0', 'color': variables['--text-color'], 'line-height': '1.75' });
+                applyStyles(tempDiv.querySelectorAll('a'), { 'color': variables['--link-color'], 'text-decoration': 'none' });
+                applyStyles(tempDiv.querySelectorAll('pre'), { 'background-color': variables['--code-bg'], 'padding': '16px', 'border-radius': '5px', 'overflow-x': 'auto', 'margin': '16px 0', 'white-space':'pre-wrap', 'word-break':'break-all', 'color': variables['--text-color'] });
+                applyStyles(tempDiv.querySelectorAll('pre code'), {'background': 'none', 'padding': '0', 'color': 'inherit'});
+                applyStyles(tempDiv.querySelectorAll('code:not(pre code)'), {'background-color': variables['--code-bg'], 'padding': '0.2em 0.4em', 'border-radius': '3px', 'font-family': 'Consolas, Monaco, monospace', 'font-size': '0.9em', 'color': variables['--text-color']});
+                applyStyles(tempDiv.querySelectorAll('blockquote'), { 'border-left': `4px solid ${variables['--quote-border']}`, 'padding-left': '16px', 'margin': '16px 0', 'color': variables['--text-color'], 'opacity':'0.8' });
+                applyStyles(tempDiv.querySelectorAll('ul, ol'), { 'padding-left': '2em', 'margin': '16px 0', 'color': variables['--text-color'] });
+                applyStyles(tempDiv.querySelectorAll('li'), { 'margin-bottom': '8px', 'color': variables['--text-color'] });
+                applyStyles(tempDiv.querySelectorAll('table'), { 'border-collapse': 'collapse', 'width': '100%', 'margin': '16px 0', 'color': variables['--text-color'] });
+                tempDiv.querySelectorAll('th, td').forEach(cell => cell.setAttribute('style', `border: 1px solid ${variables['--table-border']}; padding: 8px 12px; text-align: left; color:${variables['--text-color']};`));
+                tempDiv.querySelectorAll('th').forEach(th => th.style.backgroundColor = variables['--table-header']);
+                applyStyles(tempDiv.querySelectorAll('strong'), { 'font-weight': 'bold', 'color': 'inherit' });
+                applyStyles(tempDiv.querySelectorAll('em'), { 'color': variables['--link-color'], 'font-style': 'italic' });
+                applyStyles(tempDiv.querySelectorAll('img'), { 'max-width': '100%', 'height': 'auto', 'display': 'block', 'margin': '16px auto', 'border-radius': '5px' });
+
+                return tempDiv.innerHTML;
+            }
+
+            function showCopySuccessMessage() {
+                showToast('排版已成功复制！');
+                if (document.querySelector('.copy-success-tip')) return;
+                const successTip = document.createElement('div');
+                successTip.className = 'copy-success-tip';
+                successTip.innerHTML = `<div class="success-icon"><i class="fas fa-check-circle"></i></div><div class="success-text"><h4>复制成功！</h4><p>请直接粘贴到微信公众号编辑器</p></div>`;
+                document.body.appendChild(successTip);
+                setTimeout(() => document.body.removeChild(successTip), 3000);
+            }
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
             
-            // Outer section styling, crucial for WeChat to pick up base styles
-            const finalHtml = `<section style="background-color:${variables['--background-color']}; color:${variables['--text-color']}; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; line-height:1.75; padding:20px 15px; font-size: 16px;">${tempDiv.innerHTML}</section>`;
-            tempDiv.innerHTML = finalHtml;
-            
-            // --- 标题字号优化内联样式 ---
-            const baseHeaderStyle = `color:${variables['--header-color']}; margin: 24px 0 16px 0; font-weight: bold; line-height: 1.4;`;
-            applyStyles(tempDiv.querySelectorAll('h1'), { ...cssToJs(baseHeaderStyle), 'font-size': '30px', 'border-bottom': `2px solid ${variables['--header-color']}`, 'padding-bottom': '0.4em' });
-            applyStyles(tempDiv.querySelectorAll('h2'), { ...cssToJs(baseHeaderStyle), 'font-size': '24px', 'border-bottom': `1px solid ${variables['--header-color']}`, 'padding-bottom': '0.3em' });
-            applyStyles(tempDiv.querySelectorAll('h3'), { ...cssToJs(baseHeaderStyle), 'font-size': '20px' });
-            applyStyles(tempDiv.querySelectorAll('h4'), { ...cssToJs(baseHeaderStyle), 'font-size': '18px' });
-            applyStyles(tempDiv.querySelectorAll('h5'), { ...cssToJs(baseHeaderStyle), 'font-size': '16px' });
-            applyStyles(tempDiv.querySelectorAll('h6'), { ...cssToJs(baseHeaderStyle), 'font-size': '14px', 'color': variables['--text-light'] }); // 使用变量
-            
-            // 修复10: 确保所有标题内容都包裹在<strong>中并显式加粗
-            tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
-                // 如果标题内容没有包裹在 strong 中，则添加 strong 标签
-                if (!heading.firstElementChild || heading.firstElementChild.tagName !== 'STRONG') {
-                    const originalContent = heading.innerHTML;
-                    heading.innerHTML = `<strong style="font-weight: bold;">${originalContent}</strong>`;
-                } else {
-                    // 如果已经有 strong 标签，确保它有 bold 样式
-                    heading.firstElementChild.style.fontWeight = 'bold';
-                }
+            editorToolbar.addEventListener('click', (e) => {
+                const button = e.target.closest('.toolbar-button');
+                if (!button) return;
+                const markers = { intro: '>! ', tip: '>? ', success: '>√ ', warning: '>x ' };
+                insertAtCursor(markers[button.dataset.type] || '');
             });
 
+            function insertAtCursor(text) {
+                const start = markdownInput.selectionStart;
+                markdownInput.value = markdownInput.value.substring(0, start) + text + markdownInput.value.substring(markdownInput.selectionEnd);
+                markdownInput.selectionEnd = start + text.length;
+                markdownInput.focus();
+                renderMarkdown();
+            }
+            
+            function cssToJs(cssText) {
+                const style = {};
+                cssText.split(';').forEach(decl => {
+                    if (decl) {
+                        const [prop, value] = decl.split(':');
+                        const propName = prop.trim().replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
+                        style[propName] = value.trim();
+                    }
+                });
+                return style;
+            }
 
-            // 内容块样式 - ensure full styles are applied
-            applyStyles(tempDiv.querySelectorAll('.custom-block.intro'), { 'background-color': variables['--intro-bg'], 'border-left': `5px solid ${variables['--intro-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
-            applyStyles(tempDiv.querySelectorAll('.custom-block.tip'), { 'background-color': variables['--tip-bg'], 'border-left': `5px solid ${variables['--tip-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
-            applyStyles(tempDiv.querySelectorAll('.custom-block.success'), { 'background-color': variables['--success-bg'], 'border-left': `5px solid ${variables['--success-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
-            applyStyles(tempDiv.querySelectorAll('.custom-block.warning'), { 'background-color': variables['--warning-bg'], 'border-left': `5px solid ${variables['--warning-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] }); /* 修复11: 显式设置颜色 */
+            markdownInput.addEventListener('input', renderMarkdown);
+            clearBtn.addEventListener('click', () => { markdownInput.value = ''; renderMarkdown(); });
+            copyBtn.addEventListener('click', copyToClipboard);
+            document.querySelectorAll('.theme-button').forEach(button => button.addEventListener('click', (event) => {
+                applyTheme(event.target.getAttribute('data-theme'));
+            }));
 
-            // 其他元素
-            applyStyles(tempDiv.querySelectorAll('p'), { 'margin': '16px 0', 'color': variables['--text-color'], 'line-height': '1.75' }); // Ensure 'color' is explicitly set
-            applyStyles(tempDiv.querySelectorAll('a'), { 'color': variables['--link-color'], 'text-decoration': 'none' });
-            applyStyles(tempDiv.querySelectorAll('pre'), { 'background-color': variables['--code-bg'], 'padding': '16px', 'border-radius': '5px', 'overflow-x': 'auto', 'margin': '16px 0', 'white-space':'pre-wrap', 'word-break':'break-all', 'color': variables['--text-color'] }); // Add color for pre
-            applyStyles(tempDiv.querySelectorAll('pre code'), {'background': 'none', 'padding': '0', 'color': variables['--text-color']}); // Ensure code inside pre also has color
-            applyStyles(tempDiv.querySelectorAll('code:not(pre code)'), {'background-color': variables['--code-bg'], 'padding': '0.2em 0.4em', 'border-radius': '3px', 'font-family': 'Consolas, Monaco, monospace', 'font-size': '0.9em', 'color': variables['--text-color']}); // Inline code
-            applyStyles(tempDiv.querySelectorAll('blockquote'), { 'border-left': `4px solid ${variables['--quote-border']}`, 'padding-left': '16px', 'margin': '16px 0', 'color': variables['--text-color'], 'opacity':'0.8' }); // Explicit color
-            applyStyles(tempDiv.querySelectorAll('ul, ol'), { 'padding-left': '2em', 'margin': '16px 0', 'color': variables['--text-color'] }); // Explicit color
-            applyStyles(tempDiv.querySelectorAll('li'), { 'margin-bottom': '8px', 'color': variables['--text-color'] }); // Explicit color
-            applyStyles(tempDiv.querySelectorAll('table'), { 'border-collapse': 'collapse', 'width': '100%', 'margin': '16px 0', 'color': variables['--text-color'] }); // Explicit color
-            tempDiv.querySelectorAll('th, td').forEach(cell => cell.setAttribute('style', `border: 1px solid ${variables['--table-border']}; padding: 8px 12px; text-align: left; color:${variables['--text-color']};`)); // Explicit color for cells
-            tempDiv.querySelectorAll('th').forEach(th => th.style.backgroundColor = variables['--table-header']);
-            applyStyles(tempDiv.querySelectorAll('strong'), { 'font-weight': 'bold', 'color': variables['--text-color'] }); // Ensure bolding and explicit color
-            applyStyles(tempDiv.querySelectorAll('em'), { 'color': variables['--link-color'], 'font-style': 'italic' });
-            applyStyles(tempDiv.querySelectorAll('img'), { 'max-width': '100%', 'border-radius': '5px', 'margin': '16px 0' }); // Ensure images are styled
+            function getFormattedContentForWechat() {
+                return prepareContentForCopy();
+            }
 
-            return tempDiv.innerHTML;
-        }
+            function showWechatPreview() {
+                const modal = document.createElement('div');
+                modal.className = 'wechat-preview-modal';
+                
+                modal.innerHTML = `
+                    <div class="wechat-preview-content">
+                        <div class="wechat-modal-header">
+                            <div class="wechat-modal-title">微信编辑器预览</div>
+                            <button class="wechat-modal-close">&times;</button>
+                        </div>
+                        <div class="wechat-modal-body">${getFormattedContentForWechat()}</div>
+                        <div class="wechat-modal-footer">
+                            <p>这是微信公众号编辑器中的预览效果</p>
+                            <button class="btn-primary" id="close-preview">关闭预览</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                const modalBody = modal.querySelector('.wechat-modal-body');
+                const currentThemeStyles = getComputedStyle(previewOutput);
+                modalBody.style.backgroundColor = currentThemeStyles.getPropertyValue('--background-color') || '#FFFFFF';
+                modalBody.style.color = currentThemeStyles.getPropertyValue('--text-color') || '#111827';
 
-        function showCopySuccessMessage() {
-            showToast('排版已成功复制！');
-            if (document.querySelector('.copy-success-tip')) return;
-            const successTip = document.createElement('div');
-            successTip.className = 'copy-success-tip';
-            successTip.innerHTML = `<div class="success-icon"><i class="fas fa-check-circle"></i></div><div class="success-text"><h4>复制成功！</h4><p>请直接粘贴到微信公众号编辑器</p></div>`;
-            document.body.appendChild(successTip);
-            setTimeout(() => document.body.removeChild(successTip), 3000);
-        }
+                const closeModal = () => {
+                    if (modal.parentNode) {
+                        document.body.removeChild(modal);
+                    }
+                    document.body.style.overflow = '';
+                };
+                modal.querySelector('.wechat-modal-close').addEventListener('click', closeModal);
+                modal.querySelector('#close-preview').addEventListener('click', closeModal);
+                modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+                document.body.style.overflow = 'hidden';
+            }
 
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-        
-        editorToolbar.addEventListener('click', (e) => {
-            const button = e.target.closest('.toolbar-button');
-            if (!button) return;
-            const markers = { intro: '>! ', tip: '>? ', success: '>√ ', warning: '>x ' };
-            insertAtCursor(markers[button.dataset.type] || '');
-        });
+            function checkCompatibility() {
+                const modal = document.createElement('div');
+                modal.className = 'wechat-preview-modal';
+                
+                const browserInfo = detectBrowser();
+                const clipboardSupport = checkClipboardSupport();
 
-        function insertAtCursor(text) {
-            const start = markdownInput.selectionStart;
-            markdownInput.value = markdownInput.value.substring(0, start) + text + markdownInput.value.substring(markdownInput.selectionEnd);
-            markdownInput.selectionEnd = start + text.length;
-            markdownInput.focus();
+                let compatibilityScore = 0;
+                let recommendations = [];
+
+                if (clipboardSupport.modern) {
+                    compatibilityScore += 50;
+                } else if (clipboardSupport.legacy) {
+                    compatibilityScore += 25;
+                    recommendations.push('您的浏览器不支持现代剪贴板API，建议升级到最新版Chrome/Edge以获得最佳复制体验。');
+                } else {
+                    recommendations.push('您的浏览器可能不支持复制功能。请尝试使用Chrome或Edge。');
+                }
+
+                if (browserInfo.name === 'Chrome' || browserInfo.name === 'Edge' || (browserInfo.name === 'Unknown' && /360/i.test(navigator.userAgent))) {
+                    compatibilityScore += 50;
+                    if(browserInfo.name === 'Unknown') browserInfo.name = 'Chromium内核浏览器 (如360极速)';
+                } else {
+                    recommendations.push(`您正在使用 ${browserInfo.name}。为确保最佳兼容性，推荐使用Chrome、Edge或360极速浏览器。`);
+                }
+                if(compatibilityScore > 100) compatibilityScore = 100;
+
+                let compatibilityRating;
+                if (compatibilityScore >= 90) compatibilityRating = '<span style="color:#4CAF50;font-weight:bold;">优秀</span>';
+                else if (compatibilityScore >= 70) compatibilityRating = '<span style="color:#FFC107;font-weight:bold;">良好</span>';
+                else if (compatibilityScore >= 50) compatibilityRating = '<span style="color:#FF9800;font-weight:bold;">一般</span>';
+                else compatibilityRating = '<span style="color:#F44336;font-weight:bold;">较差</span>';
+
+                modal.innerHTML = `
+                    <div class="wechat-preview-content">
+                        <div class="wechat-modal-header"><div class="wechat-modal-title">浏览器兼容性检测</div><button class="wechat-modal-close">&times;</button></div>
+                        <div class="wechat-modal-body" style="background-color:#fff; color:#333;">
+                            <div style="margin-bottom:20px;">
+                                <h3 style="margin-top:0;">兼容性评分: ${compatibilityRating}</h3>
+                                <div class="progress-bar"><div class="progress" style="width:${compatibilityScore}%;"></div></div>
+                                <p style="text-align:right;margin:5px 0 0 0;font-size:14px;">${compatibilityScore}/100</p>
+                            </div>
+                            <div style="margin-bottom:20px;">
+                                <h4>检测结果</h4>
+                                <ul>
+                                    <li>浏览器: ${browserInfo.name} ${browserInfo.version}</li>
+                                    <li>操作系统: ${browserInfo.os}</li>
+                                    <li>现代剪贴板API: ${clipboardSupport.modern ? '✅ 支持' : '❌ 不支持'}</li>
+                                    <li>传统复制命令: ${clipboardSupport.legacy ? '✅ 支持' : '❌ 不支持'}</li>
+                                </ul>
+                            </div>
+                            ${recommendations.length > 0 ? `<div><h4>改进建议</h4><ul>${recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul></div>` : '<div><h4>检测通过</h4><p>您的浏览器环境与本工具兼容性良好，可以获得完整的体验。</p></div>'}
+                        </div>
+                        <div class="wechat-modal-footer"><button class="btn-primary" id="close-compatibility">确定</button></div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                const closeModal = () => { 
+                    if (modal.parentNode) {
+                        document.body.removeChild(modal); 
+                    }
+                };
+                modal.querySelector('.wechat-modal-close').addEventListener('click', closeModal);
+                modal.querySelector('#close-compatibility').addEventListener('click', closeModal);
+            }
+
+            function detectBrowser() {
+                const ua = navigator.userAgent;
+                let browser = "Unknown", version = "N/A", os = "Unknown";
+
+                if (/windows/i.test(ua)) os = "Windows";
+                else if (/macintosh|mac os x/i.test(ua)) os = "macOS";
+                else if (/linux/i.test(ua)) os = "Linux";
+                else if (/android/i.test(ua)) os = "Android";
+                else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+
+                let match;
+                if ((match = ua.match(/(?:edg|edge)\/([\d.]+)/i))) { browser = 'Edge'; version = match[1]; } 
+                else if ((match = ua.match(/chrome\/([\d.]+)/i))) { browser = 'Chrome'; version = match[1]; } 
+                else if ((match = ua.match(/firefox\/([\d.]+)/i))) { browser = 'Firefox'; version = match[1]; } 
+                else if ((match = ua.match(/version\/([\d.]+).*safari/i))) { browser = 'Safari'; version = match[1]; }
+                
+                return { name: browser, version: version, os: os };
+            }
+
+            function checkClipboardSupport() {
+                return {
+                    modern: !!(navigator.clipboard && navigator.clipboard.write),
+                    legacy: document.queryCommandSupported && document.queryCommandSupported('copy')
+                };
+            }
+
+            previewWechatBtn.addEventListener('click', showWechatPreview);
+            checkCompatibilityBtn.addEventListener('click', checkCompatibility);
+
+            // Initial render
             renderMarkdown();
-        }
-        
-        function cssToJs(cssText) {
-            const style = {};
-            cssText.split(';').forEach(decl => {
-                if (decl) {
-                    const [prop, value] = decl.split(':');
-                    const propName = prop.trim().replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
-                    style[propName] = value.trim();
-                }
-            });
-            return style;
-        }
-
-        markdownInput.addEventListener('input', renderMarkdown);
-        clearBtn.addEventListener('click', () => { markdownInput.value = ''; renderMarkdown(); });
-        copyBtn.addEventListener('click', copyToClipboard);
-        themeButtons.forEach(button => button.addEventListener('click', (event) => {
-            applyTheme(event.target.getAttribute('data-theme'));
-            renderMarkdown(); // 切换主题后重新渲染以应用新主题颜色到内容
-        }));
-
-        // 页面加载时应用默认主题，并确保预览内容正确渲染
-        applyTheme('default');
-        renderMarkdown(); // 首次加载时确保内容正确渲染并应用主题
-
-        // --- 2.0 功能块 JS ---
-        function getFormattedContentForWechat() {
-            const tempDiv = document.createElement('div');
-            const styledContent = prepareContentForCopy();
-            tempDiv.innerHTML = styledContent;
-            return tempDiv.innerHTML;
-        }
-
-        function showWechatPreview() {
-            const modal = document.createElement('div');
-            modal.className = 'wechat-preview-modal';
-            
-            const previewContent = document.createElement('div');
-            previewContent.className = 'wechat-preview-content';
-            
-            const modalHeader = document.createElement('div');
-            modalHeader.className = 'wechat-modal-header';
-            modalHeader.innerHTML = `
-                <div class="wechat-modal-title">微信编辑器预览</div>
-                <button class="wechat-modal-close">&times;</button>
-            `;
-            
-            const modalBody = document.createElement('div');
-            modalBody.className = 'wechat-modal-body';
-            
-            // 修复12: 确保微信预览弹窗的背景和文字颜色与当前主题一致
-            const currentThemeStyles = getComputedStyle(previewOutput);
-            const bgColor = currentThemeStyles.getPropertyValue('--background-color') || '#FFFFFF';
-            const textColor = currentThemeStyles.getPropertyValue('--text-color') || '#111827';
-            modalBody.style.backgroundColor = bgColor;
-            modalBody.style.color = textColor;
-            
-            modalBody.innerHTML = getFormattedContentForWechat();
-
-            const modalFooter = document.createElement('div');
-            modalFooter.className = 'wechat-modal-footer';
-            modalFooter.innerHTML = `
-                <p>这是微信公众号编辑器中的预览效果，点击"复制排版"按钮可以将此格式复制到微信编辑器</p>
-                <button class="btn-primary" id="close-preview">关闭预览</button>
-            `;
-            
-            previewContent.appendChild(modalHeader);
-            previewContent.appendChild(modalBody);
-            previewContent.appendChild(modalFooter);
-            modal.appendChild(previewContent);
-            document.body.appendChild(modal);
-            
-            const closeModal = () => {
-                document.body.removeChild(modal);
-                document.body.style.overflow = ''; // 恢复滚动
-            };
-            modal.querySelector('.wechat-modal-close').addEventListener('click', closeModal);
-            modal.querySelector('#close-preview').addEventListener('click', closeModal);
-            // Handle clicks outside the modal content to close it
-            modal.addEventListener('click', (e) => { 
-                if (e.target === modal) closeModal(); 
-            });
-            // Prevent scrolling on the body when modal is open
-            document.body.style.overflow = 'hidden';
-            // 动画结束时恢复滚动
-            // modal.addEventListener('animationend', () => { /* 已经在closeModal中处理 */ });
-        }
-
-        function checkCompatibility() {
-            const modal = document.createElement('div');
-            modal.className = 'wechat-preview-modal';
-            const previewContent = document.createElement('div');
-            previewContent.className = 'wechat-preview-content';
-            const modalHeader = document.createElement('div');
-            modalHeader.className = 'wechat-modal-header';
-            modalHeader.innerHTML = `
-                <div class="wechat-modal-title">微信公众号兼容性检测</div>
-                <button class="wechat-modal-close">&times;</button>
-            `;
-            const modalBody = document.createElement('div');
-            modalBody.className = 'wechat-modal-body';
-            
-            const browserInfo = detectBrowser();
-            const clipboardSupport = checkClipboardSupport();
-            const richTextSupport = checkRichTextSupport(); // This primarily checks ClipboardItem availability
-
-            let compatibilityScore = 0;
-            let recommendations = [];
-
-            if (clipboardSupport.modern) {
-                compatibilityScore += 40;
-            } else if (clipboardSupport.legacy) {
-                compatibilityScore += 20;
-                recommendations.push('您的浏览器不支持现代剪贴板API，建议升级到最新版本的Chrome或Edge浏览器以获得更稳定的复制体验。');
-            } else {
-                recommendations.push('您的浏览器可能不支持复制功能。请尝试使用Chrome或Edge浏览器。');
-            }
-
-            if (richTextSupport) { // ClipboardItem support
-                compatibilityScore += 40;
-            } else {
-                recommendations.push('您的浏览器可能不支持高级富文本复制（通过ClipboardItem），部分样式在粘贴到微信公众号编辑器时可能会丢失。');
-            }
-
-            // More precise browser check for score
-            if (browserInfo.name === 'Chrome' || browserInfo.name === 'Edge') {
-                compatibilityScore += 20;
-            } else if (browserInfo.name === 'Firefox' || browserInfo.name === 'Safari') {
-                compatibilityScore += 10; // Slightly lower score for other major browsers
-                recommendations.push(`您正在使用 ${browserInfo.name} ${browserInfo.version}。虽然可以使用，但微信公众号编辑器与Chrome/Edge的兼容性通常最佳。`);
-            } else {
-                 recommendations.push(`您正在使用 ${browserInfo.name} ${browserInfo.version}。建议使用Chrome或Edge浏览器以获得最佳体验和完整功能。`);
-            }
-
-            let compatibilityRating;
-            if (compatibilityScore >= 90) compatibilityRating = '<span style="color:#4CAF50;font-weight:bold;">优秀</span>';
-            else if (compatibilityScore >= 70) compatibilityRating = '<span style="color:#FFC107;font-weight:bold;">良好</span>';
-            else if (compatibilityScore >= 50) compatibilityRating = '<span style="color:#FF9800;font-weight:bold;">一般</span>';
-            else compatibilityRating = '<span style="color:#F44336;font-weight:bold;">较差</span>';
-
-            modalBody.innerHTML = `
-                <div style="margin-bottom:20px;">
-                    <h3 style="margin-top:0;">兼容性评分: ${compatibilityRating}</h3>
-                    <div class="progress-bar"><div class="progress" style="width:${compatibilityScore}%;"></div></div>
-                    <p style="text-align:right;margin:5px 0 0 0;font-size:14px;">${compatibilityScore}/100</p>
-                </div>
-                <div style="margin-bottom:20px;">
-                    <h4>浏览器信息</h4>
-                    <ul>
-                        <li>浏览器: ${browserInfo.name} ${browserInfo.version}</li>
-                        <li>操作系统: ${browserInfo.os}</li>
-                        <li>现代剪贴板API (ClipboardItem): ${clipboardSupport.modern ? '✅ 支持' : '❌ 不支持'}</li>
-                        <li>传统复制命令 (execCommand): ${clipboardSupport.legacy ? '✅ 支持' : '❌ 不支持'}</li>
-                    </ul>
-                </div>
-                ${recommendations.length > 0 ? `
-                <div>
-                    <h4>改进建议</h4>
-                    <ul>${recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul>
-                </div>` : ''}
-                <div style="margin-top:20px;padding-top:15px;border-top:1px solid #eee;">
-                    <h4>复制技巧</h4>
-                    <ul>
-                        <li>点击“复制排版”按钮后，请直接在微信公众号编辑器中<strong>粘贴（<kbd>Ctrl</kbd>+<kbd>V</kbd> 或 <kbd>⌘</kbd>+<kbd>V</kbd>）</strong>。</li>
-                        <li>如果粘贴后样式出现异常，可能是微信编辑器或浏览器缓存问题，尝试刷新页面后重新复制。</li>
-                        <li>建议保持浏览器和操作系统为最新版本，以获得最佳兼容性。</li>
-                    </ul>
-                </div>
-            `;
-            
-            const modalFooter = document.createElement('div');
-            modalFooter.className = 'wechat-modal-footer';
-            modalFooter.innerHTML = `<button class="btn-primary" id="close-compatibility">确定</button>`;
-            
-            previewContent.appendChild(modalHeader);
-            previewContent.appendChild(modalBody);
-            previewContent.appendChild(modalFooter);
-            modal.appendChild(previewContent);
-            document.body.appendChild(modal);
-
-            const closeModal = () => {
-                document.body.removeChild(modal);
-                document.body.style.overflow = ''; // 恢复滚动
-            };
-            modal.querySelector('.wechat-modal-close').addEventListener('click', closeModal);
-            modal.querySelector('#close-compatibility').addEventListener('click', closeModal);
-            // Handle clicks outside the modal content to close it
-            modal.addEventListener('click', (e) => { 
-                if (e.target === modal) closeModal(); 
-            });
-            // Prevent scrolling on the body when modal is open
-            document.body.style.overflow = 'hidden';
-            // modal.addEventListener('animationend', () => { /* 已经在closeModal中处理 */ });
-        }
-
-        function detectBrowser() {
-            const ua = navigator.userAgent;
-            let browser = "未知", version = "未知", os = "未知";
-
-            if (/windows/i.test(ua)) os = "Windows";
-            else if (/macintosh|mac os x/i.test(ua)) os = "macOS";
-            else if (/linux/i.test(ua)) os = "Linux";
-            else if (/android/i.test(ua)) os = "Android";
-            else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
-
-            let match;
-            // Order matters here: Edge often contains "Chrome" in its UA string, so check for Edge first.
-            if ((match = ua.match(/(?:edge|edg)\/([\d.]+)/i))) {
-                browser = 'Edge';
-                version = match[1];
-            } else if ((match = ua.match(/chrome\/([\d.]+)/i))) {
-                browser = 'Chrome';
-                version = match[1];
-            } else if ((match = ua.match(/firefox\/([\d.]+)/i))) {
-                browser = 'Firefox';
-                version = match[1];
-            } else if ((match = ua.match(/(?:safari|applewebkit)\/([\d.]+)/i) && !ua.match(/chrome/i))) { // Safari also contains AppleWebKit
-                browser = 'Safari';
-                // Try to get Safari version more accurately if possible, otherwise use AppleWebKit version
-                if ((match = ua.match(/version\/([\d.]+)/i))) {
-                    version = match[1];
-                } else {
-                    version = ua.match(/applewebkit\/([\d.]+)/i)[1];
-                }
-            } else if ((match = ua.match(/msie\s([\d.]+)|trident\/.+rv:([\d.]+)/i))) { // IE
-                browser = 'Internet Explorer';
-                version = match[1] || match[2];
-            }
-            return { name: browser, version: version, os: os };
-        }
-
-        function checkClipboardSupport() {
-            return {
-                modern: !!(navigator.clipboard && navigator.clipboard.write), // Async Clipboard API
-                legacy: document.queryCommandSupported && document.queryCommandSupported('copy') // document.execCommand
-            };
-        }
-
-        function checkRichTextSupport() {
-            // ClipboardItem indicates support for advanced HTML copying via Async Clipboard API
-            return 'ClipboardItem' in window; 
-        }
-
-        previewWechatBtn.addEventListener('click', showWechatPreview);
-        checkCompatibilityBtn.addEventListener('click', checkCompatibility);
-
+        });
     </script>
 </body>
-</html>
+</html
