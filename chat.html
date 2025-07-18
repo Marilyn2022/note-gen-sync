@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>微信公众号Markdown格式化工具3.8 (兼容性修复版)</title>
+    <title>微信公众号Markdown格式化工具4.0 (精准高亮版)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -186,7 +186,7 @@
             font-size: 1rem;
             line-height: 1.6;
             color: #F9FAFB;
-            background-color: transparent;
+            background-color: #334155;
         }
 
         #preview-output {
@@ -248,31 +248,28 @@
             color: #0F172A;
         }
 
-        /* --- 主题样式区 --- */
-        .theme-default { --header-color: #1E40AF; --link-color: #3B82F6; --code-bg: #F3F4F6; --quote-border: #D1D5DB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #111827; --intro-bg: #EBF5FF; --intro-border: #3B82F6; --tip-bg: #EBF5FF; --tip-border: #3B82F6; --success-bg: #F0FFF4; --success-border: #48BB78; --warning-bg: #FFFBEB; --warning-border: #F59E0B; --text-light: #777; }
-        .theme-green { --header-color: #047857; --link-color: #059669; --code-bg: #ECFDF5; --quote-border: #A7F3D0; --table-header: #ECFDF5; --table-border: #A7F3D0; --background-color: #FFFFFF; --text-color: #047857; --intro-bg: #ECFDF5; --intro-border: #059669; --tip-bg: #ECFDF5; --tip-border: #059669; --success-bg: #D1FAE5; --success-border: #10B981; --warning-bg: #FEF3C7; --warning-border: #D97706; --text-light: #4F8B70; }
-        .theme-purple { --header-color: #7C3AED; --link-color: #8B5CF6; --code-bg: #F5F3FF; --quote-border: #C4B5FD; --table-header: #F5F3FF; --table-border: #C4B5FD; --background-color: #FFFFFF; --text-color: #7C3AED; --intro-bg: #F5F3FF; --intro-border: #8B5CF6; --tip-bg: #F5F3FF; --tip-border: #8B5CF6; --success-bg: #F0FDFA; --success-border: #2DD4BF; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #A57CDA; }
-        .theme-github { --header-color: #24292F; --link-color: #0969DA; --code-bg: #F6F8FA; --quote-border: #D0D7DE; --table-header: #F6F8FA; --table-border: #D0D7DE; --background-color: #FFFFFF; --text-color: #24292F; --intro-bg: #F6F8FA; --intro-border: #0969DA; --tip-bg: #F6F8FA; --tip-border: #0969DA; --success-bg: #E6FFED; --success-border: #28A745; --warning-bg: #FFFBDD; --warning-border: #B08800; --text-light: #586069; }
-        .theme-retro { --header-color: #B45309; --link-color: #D97706; --code-bg: #FEF3C7; --quote-border: #FCD34D; --table-header: #FEF3C7; --table-border: #FCD34D; --background-color: #FFFBEB; --text-color: #92400E; --intro-bg: #FEF3C7; --intro-border: #D97706; --tip-bg: #FEF3C7; --tip-border: #D97706; --success-bg: #F7FEE7; --success-border: #65A30D; --warning-bg: #FFF7ED; --warning-border: #FB923C; --text-light: #D97706; }
-        .theme-sakura { --header-color: #BE185D; --link-color: #EC4899; --code-bg: #FDF2F8; --quote-border: #F9A8D4; --table-header: #FDF2F8; --table-border: #F9A8D4; --background-color: #FFFFFF; --text-color: #BE185D; --intro-bg: #FDF2F8; --intro-border: #EC4899; --tip-bg: #FDF2F8; --tip-border: #EC4899; --success-bg: #F0FDFA; --success-border: #14B8A6; --warning-bg: #FFFBEB; --warning-border: #F59E0B; --text-light: #F7B5D6; }
-        .theme-gold { --header-color: #A16207; --link-color: #CA8A04; --code-bg: #FEF9C3; --quote-border: #FDE047; --table-header: #FEF9C3; --table-border: #FDE047; --background-color: #FFFEF2; --text-color: #A16207; --intro-bg: #FEF9C3; --intro-border: #CA8A04; --tip-bg: #FEF9C3; --tip-border: #CA8A04; --success-bg: #F7FEE7; --success-border: #84CC16; --warning-bg: #FFF7ED; --warning-border: #F97316; --text-light: #B88A00; }
-        .theme-mint { --header-color: #059669; --link-color: #10B981; --code-bg: #ECFCCB; --quote-border: #BEF264; --table-header: #ECFCCB; --table-border: #BEF264; --background-color: #F7FEE7; --text-color: #059669; --intro-bg: #F0FDF4; --intro-border: #10B981; --tip-bg: #F0FDF4; --tip-border: #10B981; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #6EE7B7; }
-        .theme-cyberpunk { --header-color: #06FFA5; --link-color: #00D9FF; --code-bg: #0F0F23; --quote-border: #FF006E; --table-header: #0F0F23; --table-border: #FF006E; --background-color: #0A0A0A; --text-color: #06FFA5; --intro-bg: #0F0F23; --intro-border: #00D9FF; --tip-bg: #0F0F23; --tip-border: #00D9FF; --success-bg: #0F231A; --success-border: #06FFA5; --warning-bg: #230F1A; --warning-border: #FF006E; --text-light: #00FFFF; }
-        .theme-dark { --header-color: #F9FAFB; --link-color: #60A5FA; --code-bg: #374151; --quote-border: #6B7280; --table-header: #374151; --table-border: #6B7280; --background-color: #111827; --text-color: #F9FAFB; --intro-bg: #1F2937; --intro-border: #60A5FA; --tip-bg: #1F2937; --tip-border: #60A5FA; --success-bg: #163324; --success-border: #34D399; --warning-bg: #332517; --warning-border: #FBBF24; --text-light: #9CA3AF; }
-        .theme-ocean { --header-color: #0369A1; --link-color: #0284C7; --code-bg: #E0F2FE; --quote-border: #7DD3FC; --table-header: #E0F2FE; --table-border: #7DD3FC; --background-color: #F0F9FF; --text-color: #0369A1; --intro-bg: #E0F2FE; --intro-border: #0284C7; --tip-bg: #E0F2FE; --tip-border: #0284C7; --success-bg: #EFF6FF; --success-border: #3B82F6; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #60A5FA; }
-        .theme-forest { --header-color: #166534; --link-color: #16A34A; --code-bg: #F0FDF4; --quote-border: #86EFAC; --table-header: #F0FDF4; --table-border: #86EFAC; --background-color: #F7FEE7; --text-color: #166534; --intro-bg: #DCFCE7; --intro-border: #16A34A; --tip-bg: #DCFCE7; --tip-border: #16A34A; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEF3C7; --warning-border: #D97706; --text-light: #4ADE80; }
-        .theme-minimal { --header-color: #374151; --link-color: #6B7280; --code-bg: #F9FAFB; --quote-border: #E5E7EB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #374151; --intro-bg: #F9FAFB; --intro-border: #6B7280; --tip-bg: #F9FAFB; --tip-border: #6B7280; --success-bg: #F0FDF4; --success-border: #16A34A; --warning-bg: #FEFCE8; --warning-border: #D97706; --text-light: #888; }
-        .theme-serene-gray { --header-color: #111827; --link-color: #3b82f6; --code-bg: #f3f4f6; --quote-border: #6b7280; --table-header: #f9fafb; --table-border: #e5e7eb; --background-color: #ffffff; --text-color: #374151; --intro-bg: #f3f4f6; --intro-border: #d1d5db; --tip-bg: #eef2f9; --tip-border: #60a5fa; --success-bg: #f0fdf4; --success-border: #22c55e; --warning-bg: #fffbeb; --warning-border: #f59e0b; --text-light: #6b7280; }
-        .theme-warm-wood { --header-color: #854d0e; --link-color: #c2410c; --code-bg: #fefce8; --quote-border: #facc15; --table-header: #fefce8; --table-border: #f3eade; --background-color: #fdfbf8; --text-color: #78350f; --intro-bg: #fefce8; --intro-border: #facc15; --tip-bg: #fef9c3; --tip-border: #ca8a04; --success-bg: #f7fee7; --success-border: #65a30d; --warning-bg: #fff7ed; --warning-border: #fb923c; --text-light: #a16207; }
-        .theme-neumorphism { --header-color: #3b82f6; --link-color: #2563eb; --code-bg: #dbeafe; --quote-border: #bfdbfe; --table-header: #dbeafe; --table-border: #bfdbfe; --background-color: #eef2f9; --text-color: #475569; --intro-bg: #dbeafe; --intro-border: #93c5fd; --tip-bg: #e0e7ff; --tip-border: #818cf8; --success-bg: #dcfce7; --success-border: #4ade80; --warning-bg: #fef3c7; --warning-border: #facc15; --text-light: #64748b; }
-        
-        /* --- 2025-07-17 新增主题 --- */
-        .theme-ink-wash { --header-color: #1a1a1a; --link-color: #c82f2f; --code-bg: #f5f5f5; --quote-border: #cccccc; --table-header: #f5f5f5; --table-border: #e0e0e0; --background-color: #fcfcfc; --text-color: #2c2c2c; --intro-bg: #f5f5f5; --intro-border: #cccccc; --tip-bg: #f5f5f5; --tip-border: #cccccc; --success-bg: #f0f9f0; --success-border: #a0cda0; --warning-bg: #f9f0f0; --warning-border: #c82f2f; --text-light: #666666; }
-        .theme-blueprint { --header-color: #77cbf9; --link-color: #ffd60a; --code-bg: #1b263b; --quote-border: #77cbf9; --table-header: #1b263b; --table-border: #4a6a8a; --background-color: #0d1b2a; --text-color: #e0e1dd; --intro-bg: #1b263b; --intro-border: #77cbf9; --tip-bg: #1b263b; --tip-border: #77cbf9; --success-bg: #1a3b3d; --success-border: #2ec4b6; --warning-bg: #3b3d2b; --warning-border: #ffd60a; --text-light: #a9d6e5; }
-        .theme-papyrus { --header-color: #4a3f2d; --link-color: #a52a2a; --code-bg: #f5efdb; --quote-border: #d3c0a5; --table-header: #f5efdb; --table-border: #d3c0a5; --background-color: #fdf6e3; --text-color: #584c2c; --intro-bg: #f5efdb; --intro-border: #d3c0a5; --tip-bg: #f5efdb; --tip-border: #d3c0a5; --success-bg: #e8f5e9; --success-border: #81c784; --warning-bg: #fff3e0; --warning-border: #ffb74d; --text-light: #8d6e63; }
+        /* --- 主题样式区 (新增 --highlight-color) --- */
+        .theme-default { --header-color: #1E40AF; --link-color: #3B82F6; --code-bg: #F3F4F6; --quote-border: #D1D5DB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #111827; --intro-bg: #EBF5FF; --intro-border: #3B82F6; --tip-bg: #EBF5FF; --tip-border: #3B82F6; --success-bg: #F0FFF4; --success-border: #48BB78; --warning-bg: #FFFBEB; --warning-border: #F59E0B; --text-light: #777; --highlight-color: #D97706; }
+        .theme-green { --header-color: #047857; --link-color: #059669; --code-bg: #ECFDF5; --quote-border: #A7F3D0; --table-header: #ECFDF5; --table-border: #A7F3D0; --background-color: #FFFFFF; --text-color: #047857; --intro-bg: #ECFDF5; --intro-border: #059669; --tip-bg: #ECFDF5; --tip-border: #059669; --success-bg: #D1FAE5; --success-border: #10B981; --warning-bg: #FEF3C7; --warning-border: #D97706; --text-light: #4F8B70; --highlight-color: #16A34A; }
+        .theme-purple { --header-color: #7C3AED; --link-color: #8B5CF6; --code-bg: #F5F3FF; --quote-border: #C4B5FD; --table-header: #F5F3FF; --table-border: #C4B5FD; --background-color: #FFFFFF; --text-color: #7C3AED; --intro-bg: #F5F3FF; --intro-border: #8B5CF6; --tip-bg: #F5F3FF; --tip-border: #8B5CF6; --success-bg: #F0FDFA; --success-border: #2DD4BF; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #A57CDA; --highlight-color: #EC4899; }
+        .theme-github { --header-color: #24292F; --link-color: #0969DA; --code-bg: #F6F8FA; --quote-border: #D0D7DE; --table-header: #F6F8FA; --table-border: #D0D7DE; --background-color: #FFFFFF; --text-color: #24292F; --intro-bg: #F6F8FA; --intro-border: #0969DA; --tip-bg: #F6F8FA; --tip-border: #0969DA; --success-bg: #E6FFED; --success-border: #28A745; --warning-bg: #FFFBDD; --warning-border: #B08800; --text-light: #586069; --highlight-color: #B08800; }
+        .theme-retro { --header-color: #B45309; --link-color: #D97706; --code-bg: #FEF3C7; --quote-border: #FCD34D; --table-header: #FEF3C7; --table-border: #FCD34D; --background-color: #FFFBEB; --text-color: #92400E; --intro-bg: #FEF3C7; --intro-border: #D97706; --tip-bg: #FEF3C7; --tip-border: #D97706; --success-bg: #F7FEE7; --success-border: #65A30D; --warning-bg: #FFF7ED; --warning-border: #FB923C; --text-light: #D97706; --highlight-color: #C2410C; }
+        .theme-sakura { --header-color: #BE185D; --link-color: #EC4899; --code-bg: #FDF2F8; --quote-border: #F9A8D4; --table-header: #FDF2F8; --table-border: #F9A8D4; --background-color: #FFFFFF; --text-color: #BE185D; --intro-bg: #FDF2F8; --intro-border: #EC4899; --tip-bg: #FDF2F8; --tip-border: #EC4899; --success-bg: #F0FDFA; --success-border: #14B8A6; --warning-bg: #FFFBEB; --warning-border: #F59E0B; --text-light: #F7B5D6; --highlight-color: #DB2777; }
+        .theme-gold { --header-color: #A16207; --link-color: #CA8A04; --code-bg: #FEF9C3; --quote-border: #FDE047; --table-header: #FEF9C3; --table-border: #FDE047; --background-color: #FFFEF2; --text-color: #A16207; --intro-bg: #FEF9C3; --intro-border: #CA8A04; --tip-bg: #FEF9C3; --tip-border: #CA8A04; --success-bg: #F7FEE7; --success-border: #84CC16; --warning-bg: #FFF7ED; --warning-border: #F97316; --text-light: #B88A00; --highlight-color: #F59E0B; }
+        .theme-mint { --header-color: #059669; --link-color: #10B981; --code-bg: #ECFCCB; --quote-border: #BEF264; --table-header: #ECFCCB; --table-border: #BEF264; --background-color: #F7FEE7; --text-color: #059669; --intro-bg: #F0FDF4; --intro-border: #10B981; --tip-bg: #F0FDF4; --tip-border: #10B981; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #6EE7B7; --highlight-color: #84CC16; }
+        .theme-cyberpunk { --header-color: #06FFA5; --link-color: #00D9FF; --code-bg: #0F0F23; --quote-border: #FF006E; --table-header: #0F0F23; --table-border: #FF006E; --background-color: #0A0A0A; --text-color: #06FFA5; --intro-bg: #0F0F23; --intro-border: #00D9FF; --tip-bg: #0F0F23; --tip-border: #00D9FF; --success-bg: #0F231A; --success-border: #06FFA5; --warning-bg: #230F1A; --warning-border: #FF006E; --text-light: #00FFFF; --highlight-color: #FFD60A; }
+        .theme-dark { --header-color: #F9FAFB; --link-color: #60A5FA; --code-bg: #374151; --quote-border: #6B7280; --table-header: #374151; --table-border: #6B7280; --background-color: #111827; --text-color: #F9FAFB; --intro-bg: #1F2937; --intro-border: #60A5FA; --tip-bg: #1F2937; --tip-border: #60A5FA; --success-bg: #163324; --success-border: #34D399; --warning-bg: #332517; --warning-border: #FBBF24; --text-light: #9CA3AF; --highlight-color: #FBBF24; }
+        .theme-ocean { --header-color: #0369A1; --link-color: #0284C7; --code-bg: #E0F2FE; --quote-border: #7DD3FC; --table-header: #E0F2FE; --table-border: #7DD3FC; --background-color: #F0F9FF; --text-color: #0369A1; --intro-bg: #E0F2FE; --intro-border: #0284C7; --tip-bg: #E0F2FE; --tip-border: #0284C7; --success-bg: #EFF6FF; --success-border: #3B82F6; --warning-bg: #FEFCE8; --warning-border: #EAB308; --text-light: #60A5FA; --highlight-color: #F59E0B; }
+        .theme-forest { --header-color: #166534; --link-color: #16A34A; --code-bg: #F0FDF4; --quote-border: #86EFAC; --table-header: #F0FDF4; --table-border: #86EFAC; --background-color: #F7FEE7; --text-color: #166534; --intro-bg: #DCFCE7; --intro-border: #16A34A; --tip-bg: #DCFCE7; --tip-border: #16A34A; --success-bg: #D1FAE5; --success-border: #059669; --warning-bg: #FEF3C7; --warning-border: #D97706; --text-light: #4ADE80; --highlight-color: #84CC16; }
+        .theme-minimal { --header-color: #374151; --link-color: #6B7280; --code-bg: #F9FAFB; --quote-border: #E5E7EB; --table-header: #F9FAFB; --table-border: #E5E7EB; --background-color: #FFFFFF; --text-color: #374151; --intro-bg: #F9FAFB; --intro-border: #6B7280; --tip-bg: #F9FAFB; --tip-border: #6B7280; --success-bg: #F0FDF4; --success-border: #16A34A; --warning-bg: #FEFCE8; --warning-border: #D97706; --text-light: #888; --highlight-color: #D97706; }
+        .theme-serene-gray { --header-color: #111827; --link-color: #3b82f6; --code-bg: #f3f4f6; --quote-border: #6b7280; --table-header: #f9fafb; --table-border: #e5e7eb; --background-color: #ffffff; --text-color: #374151; --intro-bg: #f3f4f6; --intro-border: #d1d5db; --tip-bg: #eef2f9; --tip-border: #60a5fa; --success-bg: #f0fdf4; --success-border: #22c55e; --warning-bg: #fffbeb; --warning-border: #f59e0b; --text-light: #6b7280; --highlight-color: #f59e0b; }
+        .theme-warm-wood { --header-color: #854d0e; --link-color: #c2410c; --code-bg: #fefce8; --quote-border: #facc15; --table-header: #fefce8; --table-border: #f3eade; --background-color: #fdfbf8; --text-color: #78350f; --intro-bg: #fefce8; --intro-border: #facc15; --tip-bg: #fef9c3; --tip-border: #ca8a04; --success-bg: #f7fee7; --success-border: #65a30d; --warning-bg: #fff7ed; --warning-border: #fb923c; --text-light: #a16207; --highlight-color: #EA580C; }
+        .theme-neumorphism { --header-color: #3b82f6; --link-color: #2563eb; --code-bg: #dbeafe; --quote-border: #bfdbfe; --table-header: #dbeafe; --table-border: #bfdbfe; --background-color: #eef2f9; --text-color: #475569; --intro-bg: #dbeafe; --intro-border: #93c5fd; --tip-bg: #e0e7ff; --tip-border: #818cf8; --success-bg: #dcfce7; --success-border: #4ade80; --warning-bg: #fef3c7; --warning-border: #facc15; --text-light: #64748b; --highlight-color: #ef4444; }
+        .theme-ink-wash { --header-color: #1a1a1a; --link-color: #c82f2f; --code-bg: #f5f5f5; --quote-border: #cccccc; --table-header: #f5f5f5; --table-border: #e0e0e0; --background-color: #fcfcfc; --text-color: #2c2c2c; --intro-bg: #f5f5f5; --intro-border: #cccccc; --tip-bg: #f5f5f5; --tip-border: #cccccc; --success-bg: #f0f9f0; --success-border: #a0cda0; --warning-bg: #f9f0f0; --warning-border: #c82f2f; --text-light: #666666; --highlight-color: #c82f2f; }
+        .theme-blueprint { --header-color: #77cbf9; --link-color: #ffd60a; --code-bg: #1b263b; --quote-border: #77cbf9; --table-header: #1b263b; --table-border: #4a6a8a; --background-color: #0d1b2a; --text-color: #e0e1dd; --intro-bg: #1b263b; --intro-border: #77cbf9; --tip-bg: #1b263b; --tip-border: #77cbf9; --success-bg: #1a3b3d; --success-border: #2ec4b6; --warning-bg: #3b3d2b; --warning-border: #ffd60a; --text-light: #a9d6e5; --highlight-color: #ffd60a; }
+        .theme-papyrus { --header-color: #4a3f2d; --link-color: #a52a2a; --code-bg: #f5efdb; --quote-border: #d3c0a5; --table-header: #f5efdb; --table-border: #d3c0a5; --background-color: #fdf6e3; --text-color: #584c2c; --intro-bg: #f5efdb; --intro-border: #d3c0a5; --tip-bg: #f5efdb; --tip-border: #d3c0a5; --success-bg: #e8f5e9; --success-border: #81c784; --warning-bg: #fff3e0; --warning-border: #ffb74d; --text-light: #8d6e63; --highlight-color: #a52a2a; }
 
-
-        #preview-output { padding: 20px; overflow-y: auto; height: 100%; font-size: 1rem; }
+        /* --- 精准高亮 CSS --- */
         #preview-output h1, #preview-output h2, #preview-output h3, #preview-output h4, #preview-output h5, #preview-output h6 { color: var(--header-color); margin-top: 24px; margin-bottom: 16px; font-weight: bold; line-height: 1.4; }
         #preview-output h1 { font-size: 1.875rem; border-bottom: 2px solid var(--header-color); padding-bottom: 0.4em; }
         #preview-output h2 { font-size: 1.5rem; border-bottom: 1px solid var(--header-color); padding-bottom: 0.3em; }
@@ -293,7 +290,22 @@
         #preview-output th, #preview-output td { border: 1px solid var(--table-border); padding: 8px 12px; text-align: left; }
         #preview-output th { background-color: var(--table-header); font-weight: bold; }
         #preview-output img { max-width: 100%; border-radius: 5px; margin: 16px 0; }
-        #preview-output strong { color: var(--header-color); font-weight: bold; }
+        
+        /* 默认高亮关键词 */
+        #preview-output strong { 
+            color: var(--highlight-color, #D97706); 
+            font-weight: bold; 
+        }
+        /* 标题内的关键词，颜色与标题保持一致 */
+        #preview-output h1 strong,
+        #preview-output h2 strong,
+        #preview-output h3 strong,
+        #preview-output h4 strong,
+        #preview-output h5 strong,
+        #preview-output h6 strong {
+            color: var(--header-color);
+        }
+
         #preview-output em { color: var(--link-color); font-style: italic; }
 
         .custom-block { padding: 16px; margin: 16px 0; border-left-width: 5px; border-left-style: solid; border-radius: 8px; }
@@ -340,7 +352,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>微信公众号 Markdown 格式化工具 3.7 (终极版)</h1>
+            <h1>微信公众号 Markdown 格式化工具 4.0 (精准高亮版)</h1>
             <p class="subtitle">将 Markdown 转换为微信公众号兼容的精美排版，支持多种主题和内容块，一键复制到公众号编辑器</p>
         </header>
 
@@ -387,7 +399,6 @@
                             <button class="theme-button" data-theme="serene-gray">静谧灰</button>
                             <button class="theme-button" data-theme="warm-wood">暖木棕</button>
                             <button class="theme-button" data-theme="neumorphism">新拟态</button>
-                            <!-- 2025-07-17 新增主题按钮 -->
                             <button class="theme-button" data-theme="ink-wash">水墨风</button>
                             <button class="theme-button" data-theme="blueprint">蓝图风</button>
                             <button class="theme-button" data-theme="papyrus">羊皮纸</button>
@@ -428,11 +439,11 @@
             const previewWechatBtn = document.getElementById('preview-wechat-btn');
             const checkCompatibilityBtn = document.getElementById('check-compatibility-btn');
 
-            const sampleContent = `# 文章主标题 (H1)
+            const sampleContent = `# 文章主标题
 >! 这里是 **引言** 模块，用于概括文章核心内容，吸引读者继续阅读。
 
-## 核心章节标题 (H2)
-这是正文部分，我们建议使用 16px 的字号，以确保最佳的阅读体验。段落之间有足够的间距，行高设置为 1.6-1.75 之间。
+## 核心章节标题与 **关键词**
+这是正文部分，我们建议使用 **16px** 的字号，以确保最佳的阅读体验。段落之间有足够的间距，行高设置为 **1.6-1.75** 之间。
 
 ### 小节标题 (H3)
 当一个章节内容较多时，可以使用H3标题来划分不同的段落，使文章结构更加清晰。
@@ -557,7 +568,8 @@ greet('World');
                     '--tip-bg': '#EBF5FF', '--tip-border': '#3B82F6',
                     '--success-bg': '#F0FFF4', '--success-border': '#48BB78',
                     '--warning-bg': '#FFFBEB', '--warning-border': '#F59E0B',
-                    '--text-light': '#777'
+                    '--text-light': '#777',
+                    '--highlight-color': '#D97706'
                 };
 
                 for (const key in variables) {
@@ -582,6 +594,21 @@ greet('World');
                     });
                 };
                 
+                const cssToJs = (cssText) => {
+                    const style = {};
+                    cssText.split(';').forEach(decl => {
+                        if (decl) {
+                            const [prop, value] = decl.split(':');
+                            const propName = prop.trim().replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
+                            style[propName] = value.trim();
+                        }
+                    });
+                    return style;
+                }
+
+                // --- 复制样式应用 ---
+                
+                // 1. 应用基础样式
                 const baseHeaderStyle = `color:${variables['--header-color']}; margin: 24px 0 16px 0; font-weight: bold; line-height: 1.4;`;
                 applyStyles(tempDiv.querySelectorAll('h1'), { ...cssToJs(baseHeaderStyle), 'font-size': '30px', 'border-bottom': `2px solid ${variables['--header-color']}`, 'padding-bottom': '0.4em' });
                 applyStyles(tempDiv.querySelectorAll('h2'), { ...cssToJs(baseHeaderStyle), 'font-size': '24px', 'border-bottom': `1px solid ${variables['--header-color']}`, 'padding-bottom': '0.3em' });
@@ -589,14 +616,6 @@ greet('World');
                 applyStyles(tempDiv.querySelectorAll('h4'), { ...cssToJs(baseHeaderStyle), 'font-size': '18px' });
                 applyStyles(tempDiv.querySelectorAll('h5'), { ...cssToJs(baseHeaderStyle), 'font-size': '16px' });
                 applyStyles(tempDiv.querySelectorAll('h6'), { ...cssToJs(baseHeaderStyle), 'font-size': '14px', 'color': variables['--text-light'] });
-                
-                tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
-                    if (!heading.firstElementChild || heading.firstElementChild.tagName !== 'STRONG') {
-                        heading.innerHTML = `<strong style="font-weight: bold;">${heading.innerHTML}</strong>`;
-                    } else {
-                        heading.firstElementChild.style.fontWeight = 'bold';
-                    }
-                });
 
                 applyStyles(tempDiv.querySelectorAll('.custom-block.intro'), { 'background-color': variables['--intro-bg'], 'border-left': `5px solid ${variables['--intro-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] });
                 applyStyles(tempDiv.querySelectorAll('.custom-block.tip'), { 'background-color': variables['--tip-bg'], 'border-left': `5px solid ${variables['--tip-border']}`, 'padding': '16px', 'margin': '16px 0', 'border-radius': '8px', 'color': variables['--text-color'] });
@@ -614,9 +633,20 @@ greet('World');
                 applyStyles(tempDiv.querySelectorAll('table'), { 'border-collapse': 'collapse', 'width': '100%', 'margin': '16px 0', 'color': variables['--text-color'] });
                 tempDiv.querySelectorAll('th, td').forEach(cell => cell.setAttribute('style', `border: 1px solid ${variables['--table-border']}; padding: 8px 12px; text-align: left; color:${variables['--text-color']};`));
                 tempDiv.querySelectorAll('th').forEach(th => th.style.backgroundColor = variables['--table-header']);
-                applyStyles(tempDiv.querySelectorAll('strong'), { 'font-weight': 'bold', 'color': 'inherit' });
                 applyStyles(tempDiv.querySelectorAll('em'), { 'color': variables['--link-color'], 'font-style': 'italic' });
                 applyStyles(tempDiv.querySelectorAll('img'), { 'max-width': '100%', 'height': 'auto', 'display': 'block', 'margin': '16px auto', 'border-radius': '5px' });
+
+                // 2. 精准控制 strong 标签样式
+                tempDiv.querySelectorAll('strong').forEach(strongEl => {
+                    const parentHeading = strongEl.closest('h1, h2, h3, h4, h5, h6');
+                    if (parentHeading) {
+                        // 标题内的 strong 标签，颜色继承标题
+                        strongEl.setAttribute('style', 'color: inherit; font-weight: bold;');
+                    } else {
+                        // 正文内的 strong 标签，使用高亮色
+                        strongEl.setAttribute('style', `color: ${variables['--highlight-color']}; font-weight: bold;`);
+                    }
+                });
 
                 return tempDiv.innerHTML;
             }
@@ -646,24 +676,13 @@ greet('World');
 
             function insertAtCursor(text) {
                 const start = markdownInput.selectionStart;
-                markdownInput.value = markdownInput.value.substring(0, start) + text + markdownInput.value.substring(markdownInput.selectionEnd);
+                const end = markdownInput.selectionEnd;
+                markdownInput.value = markdownInput.value.substring(0, start) + text + markdownInput.value.substring(end);
                 markdownInput.selectionEnd = start + text.length;
                 markdownInput.focus();
                 renderMarkdown();
             }
             
-            function cssToJs(cssText) {
-                const style = {};
-                cssText.split(';').forEach(decl => {
-                    if (decl) {
-                        const [prop, value] = decl.split(':');
-                        const propName = prop.trim().replace(/-(\w)/g, (match, letter) => letter.toUpperCase());
-                        style[propName] = value.trim();
-                    }
-                });
-                return style;
-            }
-
             markdownInput.addEventListener('input', renderMarkdown);
             clearBtn.addEventListener('click', () => { markdownInput.value = ''; renderMarkdown(); });
             copyBtn.addEventListener('click', copyToClipboard);
@@ -813,4 +832,4 @@ greet('World');
         });
     </script>
 </body>
-</html
+</html>
