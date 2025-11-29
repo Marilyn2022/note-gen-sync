@@ -1,6 +1,6 @@
 # 笔记目录
 
-**最近更新时间：2025-11-29 07:08:29**
+**最近更新时间：2025-11-29 08:11:56**
 
 ![最近插图](https://cdn.jsdelivr.net/gh/Marilyn2022/note-gen-image-sync@main/2025-04/fdf986f5-fddc-43ba-82ae-0c8dfc73d454.png)
 
@@ -23,8 +23,8 @@
 - [电视直播源-24小时自动更新.md](notes/电视直播源-24小时自动更新.md)
 - [Spark-TTS安装_Windows指南.md](notes/Spark-TTS安装_Windows指南.md)
 - [电脑使用技巧与资源分享508.md](notes/电脑使用技巧与资源分享508.md)
-- [50个DeepSeek免费使用渠道.md](notes/50个DeepSeek免费使用渠道.md)
 - [剪映模板资源：电脑版253套精品模板预览及源文件.md](notes/剪映模板资源：电脑版253套精品模板预览及源文件.md)
+- [50个DeepSeek免费使用渠道.md](notes/50个DeepSeek免费使用渠道.md)
 
 ## 按年月分类的笔记
 
@@ -40,6 +40,6 @@
 - [电视直播源-24小时自动更新.md](notes/电视直播源-24小时自动更新.md)
 - [Spark-TTS安装_Windows指南.md](notes/Spark-TTS安装_Windows指南.md)
 - [电脑使用技巧与资源分享508.md](notes/电脑使用技巧与资源分享508.md)
-- [50个DeepSeek免费使用渠道.md](notes/50个DeepSeek免费使用渠道.md)
 - [剪映模板资源：电脑版253套精品模板预览及源文件.md](notes/剪映模板资源：电脑版253套精品模板预览及源文件.md)
+- [50个DeepSeek免费使用渠道.md](notes/50个DeepSeek免费使用渠道.md)
 
